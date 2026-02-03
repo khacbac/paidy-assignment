@@ -1,4 +1,4 @@
-import { atomWithStorage, createJSONStorage } from "jotai/utils";
+import { atomWithStorage, createJSONStorage, unwrap } from "jotai/utils";
 
 import { getItem, removeItem, setItem } from "@/lib/storage";
 
@@ -16,5 +16,6 @@ export const atomWithAsyncStorage = <T>(key: string, initialValue: T) => {
     removeItem,
   }));
 
-  return atomWithStorage<T>(key, initialValue, storage);
+  const baseAtom = atomWithStorage<T>(key, initialValue, storage);
+  return unwrap(baseAtom, (prev) => prev ?? initialValue);
 };
