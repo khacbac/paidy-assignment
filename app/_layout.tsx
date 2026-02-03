@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+import "../global.css";
 
 import { useAuthInit } from "@/features/auth/useAppStateLock";
 import { AppProviders } from "@/lib/providers/app-providers";

@@ -1,4 +1,5 @@
 import { useStore } from "jotai/react";
+import type { Getter, Setter } from "jotai/vanilla";
 
 import { authStateAtom, lockAuthAtom, unlockAuthAtom } from "./_atoms/auth";
 
@@ -18,8 +19,8 @@ let authInFlight = false;
  * - Cancel/fail: remain locked and return an error result.
  */
 export async function ensureAuthenticated(
-  get: <T>(atom: { read: unknown }) => T,
-  set: (atom: unknown, ...args: unknown[]) => void | Promise<void>,
+  get: Getter,
+  set: Setter,
   reason: string
 ): Promise<AuthResult> {
   if (authInFlight) {
