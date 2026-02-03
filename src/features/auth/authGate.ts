@@ -4,24 +4,28 @@ import type { Getter, Setter } from "jotai/vanilla";
 import { authStateAtom, lockAuthAtom, unlockAuthAtom } from "./_atoms/auth";
 
 import { authenticateLocal } from "./localAuth";
-import { isSessionValid } from "./session";
+import { isSessionValid, isSessionValidForLevel } from "./session";
+import { AuthLevel } from "./types";
 import type { AuthResult, AuthState } from "./types";
 
-export { isSessionValid };
+export { isSessionValid, isSessionValidForLevel };
 
 let authInFlight = false;
 
 /**
- * Ensure the user is authenticated "recently enough" (Phase_1: 5min TTL).
+ * Ensure the user is authenticated "recently enough" based on auth level.
  *
- * - Fast path: valid session => unlock and return ok.
+ * - Fast path: valid session for the given level => unlock and return ok.
  * - Slow path: prompt local auth and persist timestamp on success.
  * - Cancel/fail: remain locked and return an error result.
+ *
+ * @param level Authentication level (TRUSTED, SENSITIVE, CRITICAL)
  */
 export async function ensureAuthenticated(
   get: Getter,
   set: Setter,
-  reason: string
+  reason: string,
+  level: AuthLevel = AuthLevel.TRUSTED
 ): Promise<AuthResult> {
   if (authInFlight) {
     return {
@@ -34,7 +38,7 @@ export async function ensureAuthenticated(
   const state = get(authStateAtom);
   const nowMs = Date.now();
 
-  if (isSessionValid(state.lastAuthenticatedAtMs, nowMs)) {
+  if (isSessionValidForLevel(state.lastAuthenticatedAtMs, level, nowMs)) {
     set(authStateAtom, (prev: AuthState) => ({ ...prev, status: "unlocked" }));
     return { ok: true };
   }
@@ -55,14 +59,14 @@ export async function ensureAuthenticated(
 }
 
 /**
- * Hook that exposes ensureAuthenticated(reason) and lock() using the current Jotai store.
+ * Hook that exposes ensureAuthenticated(reason, level) and lock() using the current Jotai store.
  * Use this in components (e.g. Settings harness, later todo actions).
  */
 export function useAuthGate() {
   const store = useStore();
   return {
-    ensureAuthenticated: (reason: string) =>
-      ensureAuthenticated(store.get, store.set, reason),
+    ensureAuthenticated: (reason: string, level?: AuthLevel) =>
+      ensureAuthenticated(store.get, store.set, reason, level),
     lock: () => store.set(lockAuthAtom),
   };
 }

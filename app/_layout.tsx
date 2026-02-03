@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
 import { useAtomValue } from "jotai";
 import { View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "../global.css";
 
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -51,9 +52,11 @@ function AppContent() {
 
 export default function RootLayout() {
   return (
-    <AppProviders>
-      <AuthInit />
-      <AppContent />
-    </AppProviders>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AppProviders>
+        <AuthInit />
+        <AppContent />
+      </AppProviders>
+    </GestureHandlerRootView>
   );
 }

@@ -3,13 +3,10 @@ import { FlatList, View } from "react-native";
 import { EmptyState } from "@/components/EmptyState";
 import type { Todo } from "@/features/todos/types";
 
-import { TodoItem } from "./TodoItem";
+import { SwipeableTodoItem } from "./SwipeableTodoItem";
 
 type TodoListProps = {
   todos: Todo[];
-  busyTodoId: string | null;
-  titleDrafts: Record<string, string>;
-  onChangeDraft: (id: string, value: string) => void;
   onToggle: (id: string) => void;
   onSaveTitle: (todo: Todo) => void;
   onDelete: (id: string) => void;
@@ -21,9 +18,6 @@ type TodoListProps = {
 
 export function TodoList({
   todos,
-  busyTodoId,
-  titleDrafts,
-  onChangeDraft,
   onToggle,
   onSaveTitle,
   onDelete,
@@ -47,14 +41,11 @@ export function TodoList({
         />
       }
       renderItem={({ item }) => (
-        <TodoItem
+        <SwipeableTodoItem
           todo={item}
-          draftTitle={titleDrafts[item.id] ?? item.title}
-          busy={busyTodoId === item.id}
-          onChangeDraft={(value) => onChangeDraft(item.id, value)}
-          onToggle={() => onToggle(item.id)}
-          onSaveTitle={() => onSaveTitle(item)}
-          onDelete={() => onDelete(item.id)}
+          onToggle={onToggle}
+          onSaveTitle={onSaveTitle}
+          onDelete={onDelete}
         />
       )}
       ItemSeparatorComponent={() => <View className="h-0" />}

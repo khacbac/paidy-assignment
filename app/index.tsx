@@ -7,6 +7,7 @@ import { Button } from "@/components/Button";
 import { AddTodoForm } from "@/features/todos/components/AddTodoForm";
 import { TodoFilters } from "@/features/todos/components/TodoFilters";
 import { TodoList } from "@/features/todos/components/TodoList";
+import { AuthLevel } from "@/features/auth/types";
 import { useAuthGate } from "@/features/auth/authGate";
 import {
   activeTodosCountAtom,
@@ -48,12 +49,10 @@ function getEmptyState(filter: TodoFilter): {
 export default function TodosScreen() {
   const [filter, setFilter] = useState<TodoFilter>("all");
   const [newTitle, setNewTitle] = useState("");
-  const [titleDrafts, setTitleDrafts] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isClearingCompleted, setIsClearingCompleted] = useState(false);
-  const [busyTodoId, setBusyTodoId] = useState<string | null>(null);
 
   const visibleTodosAtom = useMemo(() => filteredTodosAtom(filter), [filter]);
   const visibleTodos = useAtomValue(visibleTodosAtom);
@@ -70,9 +69,9 @@ export default function TodosScreen() {
   const { ensureAuthenticated } = useAuthGate();
 
   const runProtectedAction = useCallback(
-    async (reason: string, action: () => void | Promise<void>) => {
+    async (reason: string, level: AuthLevel, action: () => void | Promise<void>) => {
       setActionError(null);
-      const result = await ensureAuthenticated(reason);
+      const result = await ensureAuthenticated(reason, level);
       if (!result.ok) {
         if (result.code !== "CANCELLED") {
           setActionError(result.message);
@@ -96,7 +95,7 @@ export default function TodosScreen() {
     setFormError(null);
     setIsSubmitting(true);
     try {
-      const ok = await runProtectedAction("Authenticate to add a todo", () => {
+      const ok = await runProtectedAction("Authenticate to add a todo", AuthLevel.SENSITIVE, () => {
         addTodo(nextTitle);
       });
       if (ok) {
@@ -109,54 +108,27 @@ export default function TodosScreen() {
 
   const handleToggleTodo = useCallback(
     async (id: string) => {
-      setBusyTodoId(id);
-      try {
-        await runProtectedAction("Authenticate to update this todo", () => {
-          toggleTodo(id);
-        });
-      } finally {
-        setBusyTodoId((current) => (current === id ? null : current));
-      }
+      await runProtectedAction("Authenticate to update this todo", AuthLevel.TRUSTED, () => {
+        toggleTodo(id);
+      });
     },
     [runProtectedAction, toggleTodo]
   );
 
   const handleSaveTitle = useCallback(
     async (todo: Todo) => {
-      const nextTitle = (titleDrafts[todo.id] ?? todo.title).trim();
-      if (nextTitle.length === 0) {
-        setActionError("Todo title cannot be empty.");
-        return;
-      }
-
-      setBusyTodoId(todo.id);
-      try {
-        await runProtectedAction("Authenticate to edit this todo", () => {
-          updateTodo({ id: todo.id, title: nextTitle });
-          setTitleDrafts((prev) => ({ ...prev, [todo.id]: nextTitle }));
-        });
-      } finally {
-        setBusyTodoId((current) => (current === todo.id ? null : current));
-      }
+      await runProtectedAction("Authenticate to edit this todo", AuthLevel.TRUSTED, () => {
+        updateTodo({ id: todo.id, title: todo.title });
+      });
     },
-    [runProtectedAction, titleDrafts, updateTodo]
+    [runProtectedAction, updateTodo]
   );
 
   const handleDeleteTodo = useCallback(
     async (id: string) => {
-      setBusyTodoId(id);
-      try {
-        await runProtectedAction("Authenticate to delete this todo", () => {
-          deleteTodo(id);
-          setTitleDrafts((prev) => {
-            const next = { ...prev };
-            delete next[id];
-            return next;
-          });
-        });
-      } finally {
-        setBusyTodoId((current) => (current === id ? null : current));
-      }
+      await runProtectedAction("Authenticate to delete this todo", AuthLevel.CRITICAL, () => {
+        deleteTodo(id);
+      });
     },
     [deleteTodo, runProtectedAction]
   );
@@ -164,7 +136,7 @@ export default function TodosScreen() {
   const handleClearCompleted = useCallback(async () => {
     setIsClearingCompleted(true);
     try {
-      await runProtectedAction("Authenticate to clear completed todos", () => {
+      await runProtectedAction("Authenticate to clear completed todos", AuthLevel.CRITICAL, () => {
         clearCompleted();
       });
     } finally {
@@ -245,11 +217,6 @@ export default function TodosScreen() {
       <View className="mt-4 flex-1">
         <TodoList
           todos={visibleTodos}
-          busyTodoId={busyTodoId}
-          titleDrafts={titleDrafts}
-          onChangeDraft={(id, value) => {
-            setTitleDrafts((prev) => ({ ...prev, [id]: value }));
-          }}
           onToggle={(id) => {
             void handleToggleTodo(id);
           }}
