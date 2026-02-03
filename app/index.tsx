@@ -15,6 +15,7 @@ import {
   clearCompletedAtom,
   completedTodosCountAtom,
   deleteTodoAtom,
+  duplicateTodoAtom,
   filteredTodosAtom,
   todosCountAtom,
   toggleTodoAtom,
@@ -49,6 +50,7 @@ function getEmptyState(filter: TodoFilter): {
 export default function TodosScreen() {
   const [filter, setFilter] = useState<TodoFilter>("all");
   const [newTitle, setNewTitle] = useState("");
+  const [autoEditTodoId, setAutoEditTodoId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,23 +66,27 @@ export default function TodosScreen() {
   const toggleTodo = useSetAtom(toggleTodoAtom);
   const updateTodo = useSetAtom(updateTodoAtom);
   const deleteTodo = useSetAtom(deleteTodoAtom);
+  const duplicateTodo = useSetAtom(duplicateTodoAtom);
   const clearCompleted = useSetAtom(clearCompletedAtom);
 
   const { ensureAuthenticated } = useAuthGate();
 
   const runProtectedAction = useCallback(
-    async (reason: string, level: AuthLevel, action: () => void | Promise<void>) => {
+    async <T,>(
+      reason: string,
+      level: AuthLevel,
+      action: () => T | Promise<T>
+    ): Promise<T | null> => {
       setActionError(null);
       const result = await ensureAuthenticated(reason, level);
       if (!result.ok) {
         if (result.code !== "CANCELLED") {
           setActionError(result.message);
         }
-        return false;
+        return null;
       }
 
-      await action();
-      return true;
+      return action();
     },
     [ensureAuthenticated]
   );
@@ -95,10 +101,14 @@ export default function TodosScreen() {
     setFormError(null);
     setIsSubmitting(true);
     try {
-      const ok = await runProtectedAction("Authenticate to add a todo", AuthLevel.SENSITIVE, () => {
-        addTodo(nextTitle);
-      });
-      if (ok) {
+      const result = await runProtectedAction(
+        "Authenticate to add a todo",
+        AuthLevel.SENSITIVE,
+        () => {
+          addTodo(nextTitle);
+        }
+      );
+      if (result !== null) {
         setNewTitle("");
       }
     } finally {
@@ -131,6 +141,20 @@ export default function TodosScreen() {
       });
     },
     [deleteTodo, runProtectedAction]
+  );
+
+  const handleDuplicateTodo = useCallback(
+    async (id: string) => {
+      const duplicatedId = await runProtectedAction(
+        "Authenticate to duplicate this todo",
+        AuthLevel.TRUSTED,
+        () => duplicateTodo(id)
+      );
+      if (duplicatedId) {
+        setAutoEditTodoId(duplicatedId);
+      }
+    },
+    [duplicateTodo, runProtectedAction]
   );
 
   const handleClearCompleted = useCallback(async () => {
@@ -225,6 +249,13 @@ export default function TodosScreen() {
           }}
           onDelete={(id) => {
             void handleDeleteTodo(id);
+          }}
+          onDuplicate={(id) => {
+            void handleDuplicateTodo(id);
+          }}
+          autoEditTodoId={autoEditTodoId}
+          onAutoEditHandled={() => {
+            setAutoEditTodoId(null);
           }}
           emptyTitle={emptyState.title}
           emptyDescription={emptyState.description}

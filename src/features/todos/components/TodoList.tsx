@@ -10,6 +10,9 @@ type TodoListProps = {
   onToggle: (id: string) => void;
   onSaveTitle: (todo: Todo) => void;
   onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
+  autoEditTodoId?: string | null;
+  onAutoEditHandled?: () => void;
   emptyTitle: string;
   emptyDescription: string;
   onEmptyAction?: () => void;
@@ -21,6 +24,9 @@ export function TodoList({
   onToggle,
   onSaveTitle,
   onDelete,
+  onDuplicate,
+  autoEditTodoId,
+  onAutoEditHandled,
   emptyTitle,
   emptyDescription,
   onEmptyAction,
@@ -46,6 +52,9 @@ export function TodoList({
           onToggle={onToggle}
           onSaveTitle={onSaveTitle}
           onDelete={onDelete}
+          onDuplicate={onDuplicate}
+          shouldStartEditing={autoEditTodoId === item.id}
+          onAutoEditHandled={onAutoEditHandled}
         />
       )}
       ItemSeparatorComponent={() => <View className="h-0" />}

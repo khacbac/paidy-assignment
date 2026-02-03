@@ -3,6 +3,7 @@ import { createStore } from "jotai";
 import {
   addTodoAtom,
   deleteTodoAtom,
+  duplicateTodoAtom,
   toggleTodoAtom,
   todosAtom,
 } from "@/features/todos/_atoms/todos";
@@ -90,5 +91,28 @@ describe("todos atoms", () => {
         completed: false,
       },
     ]);
+  });
+
+  it("duplicates a todo with copy suffix and same completion state", () => {
+    const store = createStore();
+    store.set(todosAtom, [
+      {
+        id: "todo-1",
+        title: "Original",
+        createdAtMs: 1,
+        updatedAtMs: 1,
+        completed: true,
+      },
+    ]);
+
+    const duplicatedId = store.set(duplicateTodoAtom, "todo-1");
+    const todos = store.get(todosAtom);
+
+    expect(todos).toHaveLength(2);
+    expect(todos[1]?.id).toBe(duplicatedId);
+    expect(todos[1]?.title).toBe("Original (copy)");
+    expect(todos[1]?.completed).toBe(true);
+    expect(todos[1]?.createdAtMs).toBeGreaterThanOrEqual(1);
+    expect(todos[1]?.updatedAtMs).toBeGreaterThanOrEqual(1);
   });
 });

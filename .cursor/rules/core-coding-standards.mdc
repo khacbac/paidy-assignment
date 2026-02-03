@@ -1,0 +1,33 @@
+---
+description: Core TypeScript and React Native coding standards for this project
+alwaysApply: true
+---
+
+# Core Coding Standards
+
+- **TypeScript**
+
+  - Prefer explicit types at feature boundaries (public functions, atoms, storage APIs).
+  - Keep types and interfaces close to their domain (e.g., under `src/features/**/types.ts`).
+  - Avoid `any`; if unavoidable, wrap it in a well-named type alias.
+
+- **React / React Native**
+
+  - Use functional components with hooks only; no class components.
+  - Keep components small and focused; extract reusable pieces into `components/` or feature-level components.
+  - Lift state to the minimal responsible owner; avoid deeply nested prop drilling when Jotai/global state is more appropriate.
+
+- **State Management & Atoms**
+
+  - Keep atoms colocated under `src/features/**/_atoms/`.
+  - Derive state with selectors rather than duplicating source-of-truth data.
+  - Keep atom effects (storage, side effects) thin and testable.
+
+- **Styling & UI**
+
+  - Use consistent spacing, typography, and colors aligned with the assignment’s design spec.
+  - Prefer composition over deeply nested conditionals in JSX; extract small presentational components when render logic gets complex.
+
+- **Error Handling & Async**
+  - Always handle async errors (network, storage) explicitly; avoid empty `catch` blocks.
+  - Fail gracefully in UI with safe fallbacks instead of crashing on unexpected data.

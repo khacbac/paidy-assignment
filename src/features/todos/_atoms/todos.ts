@@ -87,6 +87,34 @@ export const deleteTodoAtom = atom(null, (get, set, id: TodoId) => {
   );
 });
 
+export const duplicateTodoAtom = atom(null, (get, set, id: TodoId) => {
+  const todos = get(todosAtom);
+  const sourceIndex = todos.findIndex((todo) => todo.id === id);
+  if (sourceIndex < 0) {
+    return null;
+  }
+
+  const source = todos[sourceIndex];
+  if (!source) {
+    return null;
+  }
+
+  const nowMs = Date.now();
+  const duplicatedTodo: Todo = {
+    ...source,
+    id: createTodoId(),
+    title: `${source.title} (copy)`,
+    createdAtMs: nowMs,
+    updatedAtMs: nowMs,
+  };
+
+  const nextTodos = [...todos];
+  nextTodos.splice(sourceIndex + 1, 0, duplicatedTodo);
+  set(todosAtom, nextTodos);
+
+  return duplicatedTodo.id;
+});
+
 export const clearCompletedAtom = atom(null, (get, set) => {
   set(
     todosAtom,
