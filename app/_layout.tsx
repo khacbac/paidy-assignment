@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import { useAtomValue } from "jotai";
-import { StyleSheet, View, useColorScheme } from "react-native";
+import { StyleSheet, useColorScheme, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -21,7 +21,12 @@ function AppContent() {
 
   if (!isAuthHydrated) {
     return (
-      <View style={[styles.loadingContainer, isDark ? styles.loadingContainerDark : styles.loadingContainerLight]}>
+      <View
+        style={[
+          styles.loadingContainer,
+          isDark ? styles.loadingContainerDark : styles.loadingContainerLight,
+        ]}
+      >
         <LoadingSpinner message="Loading secure session..." />
       </View>
     );
@@ -46,6 +51,7 @@ function AppContent() {
       }}
     >
       <Stack.Screen name="index" options={{ title: "Todo List" }} />
+      <Stack.Screen name="all-todos" options={{ title: "All Todos" }} />
       <Stack.Screen name="settings" options={{ title: "Settings" }} />
     </Stack>
   );

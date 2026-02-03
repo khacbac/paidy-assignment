@@ -133,3 +133,15 @@ export const filteredTodosAtom = (filter: TodoFilter) =>
     }
     return todos;
   });
+
+export const limitedTodosAtom = (filter: TodoFilter, limit: number) =>
+  atom((get) => {
+    if (limit <= 0) {
+      return [];
+    }
+
+    const todos = get(filteredTodosAtom(filter));
+    return [...todos]
+      .sort((a, b) => b.updatedAtMs - a.updatedAtMs)
+      .slice(0, limit);
+  });
