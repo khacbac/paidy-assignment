@@ -50,7 +50,6 @@ function getEmptyState(filter: TodoFilter): {
 export default function TodosScreen() {
   const [filter, setFilter] = useState<TodoFilter>("all");
   const [newTitle, setNewTitle] = useState("");
-  const [autoEditTodoId, setAutoEditTodoId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -146,14 +145,11 @@ export default function TodosScreen() {
 
   const handleDuplicateTodo = useCallback(
     async (id: string) => {
-      const duplicatedId = await runProtectedAction(
+      await runProtectedAction(
         "Authenticate to duplicate this todo",
         AuthLevel.TRUSTED,
         () => duplicateTodo(id)
       );
-      if (duplicatedId) {
-        setAutoEditTodoId(duplicatedId);
-      }
     },
     [duplicateTodo, runProtectedAction]
   );
@@ -253,10 +249,6 @@ export default function TodosScreen() {
           }}
           onDuplicate={(id) => {
             void handleDuplicateTodo(id);
-          }}
-          autoEditTodoId={autoEditTodoId}
-          onAutoEditHandled={() => {
-            setAutoEditTodoId(null);
           }}
           emptyTitle={emptyState.title}
           emptyDescription={emptyState.description}

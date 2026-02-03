@@ -1,5 +1,7 @@
-import { Modal, Pressable, Text, View, Alert, StyleSheet, useColorScheme } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Modal, Pressable, StyleSheet, Text, View, useColorScheme } from "react-native";
 
+import { Input } from "@/components/Input";
 import type { Todo } from "@/features/todos/types";
 import { HapticPatterns } from "@/utils/haptics";
 
@@ -9,7 +11,7 @@ type TodoActionModalProps = {
   todo: Todo;
   visible: boolean;
   onClose: () => void;
-  onEdit: () => void;
+  onSave: (newTitle: string) => void | Promise<void>;
   onDelete: () => void;
   onDuplicate: () => void;
 };
@@ -18,25 +20,78 @@ export function TodoActionModal({
   todo,
   visible,
   onClose,
-  onEdit,
+  onSave,
   onDelete,
   onDuplicate,
 }: TodoActionModalProps) {
   const isDark = useColorScheme() === "dark";
+  const [isEditing, setIsEditing] = useState(false);
+  const [draftTitle, setDraftTitle] = useState(todo.title);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const resetEditState = useCallback(() => {
+    setIsEditing(false);
+    setDraftTitle(todo.title);
+    setErrorMessage(null);
+    setIsSaving(false);
+  }, [todo.title]);
+
+  useEffect(() => {
+    if (!visible) {
+      resetEditState();
+      return;
+    }
+
+    setDraftTitle(todo.title);
+    setErrorMessage(null);
+  }, [resetEditState, todo.title, visible]);
 
   const handleClose = async () => {
     await HapticPatterns.LIGHT();
+    resetEditState();
     onClose();
   };
 
   const handleEdit = async () => {
     await HapticPatterns.MEDIUM();
-    onEdit();
+    setDraftTitle(todo.title);
+    setErrorMessage(null);
+    setIsEditing(true);
   };
 
   const handleDuplicate = async () => {
     await HapticPatterns.MEDIUM();
     onDuplicate();
+  };
+
+  const handleSave = async () => {
+    const trimmedTitle = draftTitle.trim();
+    if (trimmedTitle.length === 0) {
+      setErrorMessage("Please enter a todo title.");
+      await HapticPatterns.ERROR();
+      return;
+    }
+
+    setErrorMessage(null);
+    setIsSaving(true);
+    try {
+      await onSave(trimmedTitle);
+      await HapticPatterns.SUCCESS();
+      resetEditState();
+      onClose();
+    } catch (error) {
+      await HapticPatterns.ERROR();
+      console.error("Failed to save todo:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    await HapticPatterns.LIGHT();
+    resetEditState();
+    onClose();
   };
 
   const handleDelete = async () => {
@@ -55,7 +110,9 @@ export function TodoActionModal({
           onPress: () => {
             void (async () => {
               await HapticPatterns.HEAVY();
+              resetEditState();
               onDelete();
+              onClose();
             })();
           },
         },
@@ -83,55 +140,109 @@ export function TodoActionModal({
 
         <View style={[styles.sheet, isDark ? styles.sheetDark : styles.sheetLight]}>
           <Text style={[styles.kicker, isDark ? styles.kickerDark : styles.kickerLight]}>
-            Todo Actions
+            {isEditing ? "Edit Todo" : "Todo Actions"}
           </Text>
           <Text
             style={[styles.title, isDark ? styles.titleDark : styles.titleLight]}
             numberOfLines={2}
           >
-            {todo.title}
+            {isEditing ? "Update the title below." : todo.title}
           </Text>
 
           <View style={styles.actions}>
-            <Button
-              variant="primary"
-              onPress={() => {
-                void handleEdit();
-              }}
-              accessibilityLabel={`Edit ${todo.title}`}
-            >
-              Edit
-            </Button>
+            {isEditing ? (
+              <>
+                <Input
+                  label="Edit todo"
+                  value={draftTitle}
+                  onChangeText={(value) => {
+                    setDraftTitle(value);
+                    if (errorMessage) {
+                      setErrorMessage(null);
+                    }
+                  }}
+                  onSubmitEditing={() => {
+                    void handleSave();
+                  }}
+                  autoFocus
+                  errorMessage={errorMessage ?? undefined}
+                  accessibilityLabel={`Edit title for ${todo.title}`}
+                />
 
-            <Button
-              variant="secondary"
-              onPress={() => {
-                void handleDuplicate();
-              }}
-              accessibilityLabel={`Duplicate ${todo.title}`}
-            >
-              Duplicate
-            </Button>
+                <Button
+                  variant="primary"
+                  onPress={() => {
+                    void handleSave();
+                  }}
+                  loading={isSaving}
+                  accessibilityLabel="Save changes"
+                >
+                  Save
+                </Button>
 
-            <Button
-              variant="danger"
-              onPress={() => {
-                void handleDelete();
-              }}
-              accessibilityLabel={`Delete ${todo.title}`}
-            >
-              Delete
-            </Button>
+                <Button
+                  variant="outline"
+                  onPress={() => {
+                    void handleCancel();
+                  }}
+                  accessibilityLabel="Cancel editing"
+                >
+                  Cancel
+                </Button>
 
-            <Button
-              variant="outline"
-              onPress={() => {
-                void handleClose();
-              }}
-              accessibilityLabel="Cancel todo actions"
-            >
-              Cancel
-            </Button>
+                <Button
+                  variant="danger"
+                  onPress={() => {
+                    void handleDelete();
+                  }}
+                  accessibilityLabel={`Delete ${todo.title}`}
+                >
+                  Delete
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="primary"
+                  onPress={() => {
+                    void handleEdit();
+                  }}
+                  accessibilityLabel={`Edit ${todo.title}`}
+                >
+                  Edit
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  onPress={() => {
+                    void handleDuplicate();
+                  }}
+                  accessibilityLabel={`Duplicate ${todo.title}`}
+                >
+                  Duplicate
+                </Button>
+
+                <Button
+                  variant="danger"
+                  onPress={() => {
+                    void handleDelete();
+                  }}
+                  accessibilityLabel={`Delete ${todo.title}`}
+                >
+                  Delete
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onPress={() => {
+                    void handleClose();
+                  }}
+                  accessibilityLabel="Cancel todo actions"
+                >
+                  Cancel
+                </Button>
+              </>
+            )}
           </View>
         </View>
       </View>

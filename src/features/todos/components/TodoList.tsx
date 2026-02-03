@@ -11,8 +11,6 @@ type TodoListProps = {
   onSaveTitle: (todo: Todo) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
-  autoEditTodoId?: string | null;
-  onAutoEditHandled?: () => void;
   emptyTitle: string;
   emptyDescription: string;
   onEmptyAction?: () => void;
@@ -25,8 +23,6 @@ export function TodoList({
   onSaveTitle,
   onDelete,
   onDuplicate,
-  autoEditTodoId,
-  onAutoEditHandled,
   emptyTitle,
   emptyDescription,
   onEmptyAction,
@@ -53,8 +49,6 @@ export function TodoList({
           onSaveTitle={onSaveTitle}
           onDelete={onDelete}
           onDuplicate={onDuplicate}
-          shouldStartEditing={autoEditTodoId === item.id}
-          onAutoEditHandled={onAutoEditHandled}
         />
       )}
     />

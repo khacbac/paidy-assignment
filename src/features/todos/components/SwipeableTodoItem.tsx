@@ -1,12 +1,9 @@
-import { useState, useCallback, useEffect } from "react";
-import { LayoutAnimation } from "react-native";
+import { useCallback, useState } from "react";
 
 import type { Todo } from "@/features/todos/types";
-import { HapticPatterns } from "@/utils/haptics";
 
 import { TodoActionModal } from "./TodoActionModal";
 import { TodoItemDisplay } from "./TodoItemDisplay";
-import { TodoItemEdit } from "./TodoItemEdit";
 
 interface SwipeableTodoItemProps {
   todo: Todo;
@@ -14,12 +11,10 @@ interface SwipeableTodoItemProps {
   onSaveTitle: (todo: Todo) => void | Promise<void>;
   onDelete: (id: string) => void | Promise<void>;
   onDuplicate: (id: string) => void | Promise<void>;
-  shouldStartEditing?: boolean;
-  onAutoEditHandled?: () => void;
 }
 
 /**
- * Wrapper component that manages read mode, action modal, and edit mode.
+ * Wrapper component that manages read mode and action modal.
  */
 export function SwipeableTodoItem({
   todo,
@@ -27,11 +22,7 @@ export function SwipeableTodoItem({
   onSaveTitle,
   onDelete,
   onDuplicate,
-  shouldStartEditing = false,
-  onAutoEditHandled,
 }: SwipeableTodoItemProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [isActionModalVisible, setIsActionModalVisible] = useState(false);
 
   const handleToggle = useCallback(async () => {
@@ -46,34 +37,12 @@ export function SwipeableTodoItem({
     setIsActionModalVisible(false);
   }, []);
 
-  const handleEnterEdit = useCallback(() => {
-    setIsActionModalVisible(false);
-    LayoutAnimation.easeInEaseOut();
-    setIsEditing(true);
-  }, []);
-
   const handleSave = useCallback(
     async (newTitle: string) => {
-      setIsSaving(true);
-      try {
-        await onSaveTitle({ ...todo, title: newTitle });
-        await HapticPatterns.SUCCESS();
-        setIsEditing(false);
-      } catch (error) {
-        await HapticPatterns.ERROR();
-        console.error("Failed to save todo:", error);
-      } finally {
-        setIsSaving(false);
-      }
+      await onSaveTitle({ ...todo, title: newTitle });
     },
     [onSaveTitle, todo]
   );
-
-  const handleCancelEdit = useCallback(async () => {
-    await HapticPatterns.LIGHT();
-    LayoutAnimation.easeInEaseOut();
-    setIsEditing(false);
-  }, []);
 
   const handleDelete = useCallback(async () => {
     setIsActionModalVisible(false);
@@ -85,25 +54,7 @@ export function SwipeableTodoItem({
     await onDuplicate(todo.id);
   }, [onDuplicate, todo.id]);
 
-  useEffect(() => {
-    if (!shouldStartEditing || isEditing) {
-      return;
-    }
-
-    LayoutAnimation.easeInEaseOut();
-    setIsEditing(true);
-    onAutoEditHandled?.();
-  }, [isEditing, onAutoEditHandled, shouldStartEditing]);
-
-  return isEditing ? (
-    <TodoItemEdit
-      todo={todo}
-      onSave={handleSave}
-      onCancel={handleCancelEdit}
-      onDelete={handleDelete}
-      isSaving={isSaving}
-    />
-  ) : (
+  return (
     <>
       <TodoItemDisplay
         todo={todo}
@@ -114,7 +65,7 @@ export function SwipeableTodoItem({
         todo={todo}
         visible={isActionModalVisible}
         onClose={handleCloseActions}
-        onEdit={handleEnterEdit}
+        onSave={handleSave}
         onDelete={handleDelete}
         onDuplicate={handleDuplicate}
       />
