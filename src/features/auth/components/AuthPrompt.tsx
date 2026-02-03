@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
 
 import { Button } from "@/components/Button";
 
@@ -17,13 +17,53 @@ export function AuthPrompt({
   confirmLabel = "Authenticate",
   isLoading = false,
 }: AuthPromptProps) {
+  const isDark = useColorScheme() === "dark";
+
   return (
-    <View className="w-full max-w-sm gap-4 rounded-2xl border border-neutral-200 bg-white p-6 dark:border-neutral-700 dark:bg-neutral-900">
-      <Text className="text-xl font-bold text-neutral-900 dark:text-neutral-100">{title}</Text>
-      <Text className="text-sm text-neutral-600 dark:text-neutral-300">{message}</Text>
+    <View style={[styles.container, isDark ? styles.containerDark : styles.containerLight]}>
+      <Text style={[styles.title, isDark ? styles.titleDark : styles.titleLight]}>{title}</Text>
+      <Text style={[styles.message, isDark ? styles.messageDark : styles.messageLight]}>{message}</Text>
       <Button onPress={onConfirm} loading={isLoading} accessibilityLabel={confirmLabel}>
         {confirmLabel}
       </Button>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    width: "100%",
+    maxWidth: 384,
+    gap: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 24,
+  },
+  containerLight: {
+    borderColor: "#e5e5e5",
+    backgroundColor: "#ffffff",
+  },
+  containerDark: {
+    borderColor: "#404040",
+    backgroundColor: "#171717",
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  titleLight: {
+    color: "#171717",
+  },
+  titleDark: {
+    color: "#f5f5f5",
+  },
+  message: {
+    fontSize: 14,
+  },
+  messageLight: {
+    color: "#525252",
+  },
+  messageDark: {
+    color: "#d4d4d4",
+  },
+});

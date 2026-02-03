@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
 
 import { Button } from "./Button";
 
@@ -15,12 +15,16 @@ export function EmptyState({
   actionLabel,
   onActionPress,
 }: EmptyStateProps) {
+  const isDark = useColorScheme() === "dark";
+
   return (
-    <View className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-5 dark:border-neutral-600 dark:bg-neutral-900/50">
-      <Text className="text-base font-semibold text-neutral-900 dark:text-neutral-100">{title}</Text>
-      <Text className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">{description}</Text>
+    <View style={[styles.container, isDark ? styles.containerDark : styles.containerLight]}>
+      <Text style={[styles.title, isDark ? styles.titleDark : styles.titleLight]}>{title}</Text>
+      <Text style={[styles.description, isDark ? styles.descriptionDark : styles.descriptionLight]}>
+        {description}
+      </Text>
       {actionLabel && onActionPress ? (
-        <View className="mt-4 self-start">
+        <View style={styles.actionContainer}>
           <Button variant="outline" onPress={onActionPress}>
             {actionLabel}
           </Button>
@@ -29,3 +33,44 @@ export function EmptyState({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    borderRadius: 16,
+    borderWidth: 1,
+    borderStyle: "dashed",
+    padding: 20,
+  },
+  containerLight: {
+    borderColor: "#d4d4d4",
+    backgroundColor: "#fafafa",
+  },
+  containerDark: {
+    borderColor: "#525252",
+    backgroundColor: "rgba(23, 23, 23, 0.5)",
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  titleLight: {
+    color: "#171717",
+  },
+  titleDark: {
+    color: "#f5f5f5",
+  },
+  description: {
+    marginTop: 4,
+    fontSize: 14,
+  },
+  descriptionLight: {
+    color: "#525252",
+  },
+  descriptionDark: {
+    color: "#d4d4d4",
+  },
+  actionContainer: {
+    marginTop: 16,
+    alignSelf: "flex-start",
+  },
+});

@@ -1,8 +1,7 @@
 import { Stack } from "expo-router";
 import { useAtomValue } from "jotai";
-import { View } from "react-native";
+import { StyleSheet, View, useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import "../global.css";
 
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { authHydratedAtom, authStateAtom } from "@/features/auth/_atoms/auth";
@@ -18,10 +17,11 @@ function AuthInit() {
 function AppContent() {
   const authState = useAtomValue(authStateAtom);
   const isAuthHydrated = useAtomValue(authHydratedAtom);
+  const isDark = useColorScheme() === "dark";
 
   if (!isAuthHydrated) {
     return (
-      <View className="flex-1 items-center justify-center bg-neutral-100 px-6 dark:bg-neutral-950">
+      <View style={[styles.loadingContainer, isDark ? styles.loadingContainerDark : styles.loadingContainerLight]}>
         <LoadingSpinner message="Loading secure session..." />
       </View>
     );
@@ -36,8 +36,9 @@ function AppContent() {
       screenOptions={{
         headerShadowVisible: false,
         headerStyle: {
-          backgroundColor: "#f5f5f5",
+          backgroundColor: isDark ? "#171717" : "#f5f5f5",
         },
+        headerTintColor: isDark ? "#f5f5f5" : "#171717",
         headerTitleStyle: {
           fontWeight: "700",
         },
@@ -60,3 +61,18 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  loadingContainerLight: {
+    backgroundColor: "#f5f5f5",
+  },
+  loadingContainerDark: {
+    backgroundColor: "#0a0a0a",
+  },
+});

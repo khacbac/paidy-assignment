@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
@@ -21,7 +21,7 @@ export function AddTodoForm({
   errorMessage,
 }: AddTodoFormProps) {
   return (
-    <View className="gap-2">
+    <View style={styles.container}>
       <Input
         label="New todo"
         value={value}
@@ -32,8 +32,8 @@ export function AddTodoForm({
         errorMessage={errorMessage ?? undefined}
         accessibilityLabel="Todo title input"
       />
-      <View className="flex-row gap-2">
-        <View className="flex-1">
+      <View style={styles.actionsRow}>
+        <View style={styles.flexOne}>
           <Button
             onPress={onSubmit}
             loading={isSubmitting}
@@ -43,7 +43,7 @@ export function AddTodoForm({
             Add Todo
           </Button>
         </View>
-        <View className="flex-1">
+        <View style={styles.flexOne}>
           <Button
             variant="outline"
             onPress={onClear}
@@ -57,3 +57,16 @@ export function AddTodoForm({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 8,
+  },
+  actionsRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  flexOne: {
+    flex: 1,
+  },
+});

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
@@ -49,7 +49,7 @@ export function TodoItemEdit({
   };
 
   return (
-    <View className="gap-3 p-4">
+    <View style={styles.container}>
       <Input
         label="Edit todo"
         value={draftTitle}
@@ -59,8 +59,8 @@ export function TodoItemEdit({
         accessibilityLabel={`Edit title for ${todo.title}`}
       />
 
-      <View className="flex-row gap-2">
-        <View className="flex-1">
+      <View style={styles.actionsRow}>
+        <View style={styles.flexOne}>
           <Button
             variant="primary"
             onPress={handleSave}
@@ -72,7 +72,7 @@ export function TodoItemEdit({
           </Button>
         </View>
 
-        <View className="flex-1">
+        <View style={styles.flexOne}>
           <Button
             variant="outline"
             onPress={handleCancel}
@@ -95,3 +95,17 @@ export function TodoItemEdit({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 12,
+    padding: 16,
+  },
+  actionsRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  flexOne: {
+    flex: 1,
+  },
+});

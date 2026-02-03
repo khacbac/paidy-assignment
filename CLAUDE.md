@@ -9,13 +9,13 @@ A secured TODO list application built with React Native + Expo. Users must authe
 ## Commands
 
 ```bash
-npm start           # Start Expo dev server
-npm run ios         # Start iOS simulator
-npm run android     # Start Android emulator
-npm run lint        # Run ESLint on app/ and src/
-npm test            # Run all tests (Jest)
-npm run test:watch  # Run tests in watch mode
-npm test -- path/to/file.test.ts  # Run single test file
+pnpm start           # Start Expo dev server
+pnpm ios             # Start iOS simulator
+pnpm android         # Start Android emulator
+pnpm lint            # Run ESLint on app/ and src/
+pnpm test            # Run all tests (Jest)
+pnpm test:watch      # Run tests in watch mode
+pnpm test path/to/file.test.ts  # Run single test file
 ```
 
 ## Architecture

@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
 
 import { Button } from "@/components/Button";
 import type { TodoFilter } from "@/features/todos/types";
@@ -24,6 +24,7 @@ export function TodoFilters({
   completedCount,
   onChangeFilter,
 }: TodoFiltersProps) {
+  const isDark = useColorScheme() === "dark";
   const countByFilter: Record<TodoFilter, number> = {
     all: totalCount,
     active: activeCount,
@@ -31,13 +32,13 @@ export function TodoFilters({
   };
 
   return (
-    <View className="gap-2">
-      <Text className="text-sm text-neutral-600 dark:text-neutral-300">
+    <View style={styles.container}>
+      <Text style={[styles.stats, isDark ? styles.statsDark : styles.statsLight]}>
         Total {totalCount} • Active {activeCount} • Completed {completedCount}
       </Text>
-      <View className="flex-row gap-2">
+      <View style={styles.filtersRow}>
         {FILTERS.map((filter) => (
-          <View key={filter.value} className="flex-1">
+          <View key={filter.value} style={styles.flexOne}>
             <Button
               variant={selectedFilter === filter.value ? "secondary" : "outline"}
               onPress={() => onChangeFilter(filter.value)}
@@ -51,3 +52,25 @@ export function TodoFilters({
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 8,
+  },
+  stats: {
+    fontSize: 14,
+  },
+  statsLight: {
+    color: "#525252",
+  },
+  statsDark: {
+    color: "#d4d4d4",
+  },
+  filtersRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  flexOne: {
+    flex: 1,
+  },
+});

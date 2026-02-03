@@ -1,6 +1,6 @@
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import { forwardRef, useCallback, useMemo } from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
 
 import { Button } from "@/components/Button";
 import { HapticPatterns } from "@/utils/haptics";
@@ -22,6 +22,7 @@ export const AuthBottomSheet = forwardRef<BottomSheetModal, AuthBottomSheetProps
     { title, message, onConfirm, confirmLabel = "Authenticate", isLoading = false },
     ref
   ) {
+    const isDark = useColorScheme() === "dark";
     const snapPoints = useMemo(() => ["25%", "30%"], []);
 
     const handleConfirm = useCallback(async () => {
@@ -45,24 +46,20 @@ export const AuthBottomSheet = forwardRef<BottomSheetModal, AuthBottomSheetProps
           />
         )}
       >
-        <BottomSheetView className="flex-1 p-6">
-          <View className="mb-6 flex-row items-center justify-center">
-            <View className="h-1 w-12 rounded-full bg-neutral-300 dark:bg-neutral-700" />
+        <BottomSheetView style={styles.sheetContainer}>
+          <View style={styles.handleContainer}>
+            <View style={[styles.handle, isDark ? styles.handleDark : styles.handleLight]} />
           </View>
 
-          <Text className="mb-2 text-center text-xl font-bold text-neutral-900 dark:text-neutral-100">
-            {title}
-          </Text>
+          <Text style={[styles.title, isDark ? styles.titleDark : styles.titleLight]}>{title}</Text>
 
-          <Text className="mb-8 text-center text-base text-neutral-600 dark:text-neutral-300">
-            {message}
-          </Text>
+          <Text style={[styles.message, isDark ? styles.messageDark : styles.messageLight]}>{message}</Text>
 
           <Button
             onPress={handleConfirm}
             loading={isLoading}
             accessibilityLabel={confirmLabel}
-            className="w-full"
+            style={styles.fullWidthButton}
           >
             {confirmLabel}
           </Button>
@@ -71,3 +68,53 @@ export const AuthBottomSheet = forwardRef<BottomSheetModal, AuthBottomSheetProps
     );
   }
 );
+
+const styles = StyleSheet.create({
+  sheetContainer: {
+    flex: 1,
+    padding: 24,
+  },
+  handleContainer: {
+    marginBottom: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  handle: {
+    height: 4,
+    width: 48,
+    borderRadius: 999,
+  },
+  handleLight: {
+    backgroundColor: "#d4d4d4",
+  },
+  handleDark: {
+    backgroundColor: "#404040",
+  },
+  title: {
+    marginBottom: 8,
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  titleLight: {
+    color: "#171717",
+  },
+  titleDark: {
+    color: "#f5f5f5",
+  },
+  message: {
+    marginBottom: 32,
+    textAlign: "center",
+    fontSize: 16,
+  },
+  messageLight: {
+    color: "#525252",
+  },
+  messageDark: {
+    color: "#d4d4d4",
+  },
+  fullWidthButton: {
+    width: "100%",
+  },
+});

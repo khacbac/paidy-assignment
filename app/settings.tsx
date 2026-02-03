@@ -1,6 +1,6 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Alert, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View, useColorScheme } from "react-native";
 
 import { Button } from "@/components/Button";
 import { EmptyState } from "@/components/EmptyState";
@@ -31,6 +31,7 @@ export default function SettingsScreen() {
   const authState = useAtomValue(authStateAtom);
   const setTodos = useSetAtom(todosAtom);
   const { ensureAuthenticated, lock } = useAuthGate();
+  const isDark = useColorScheme() === "dark";
 
   const [availability, setAvailability] =
     useState<LocalAuthAvailability | null>(null);
@@ -102,27 +103,27 @@ export default function SettingsScreen() {
   }, [ensureAuthenticated, lock, setTodos]);
 
   return (
-    <View className="flex-1 gap-4 bg-neutral-100 px-4 pb-4 pt-5 dark:bg-neutral-950">
+    <View style={[styles.screen, isDark ? styles.screenDark : styles.screenLight]}>
       <View>
-        <Text className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
+        <Text style={[styles.heading, isDark ? styles.headingDark : styles.headingLight]}>
           Settings
         </Text>
-        <Text className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+        <Text style={[styles.subheading, isDark ? styles.subheadingDark : styles.subheadingLight]}>
           Authentication controls and session diagnostics.
         </Text>
       </View>
 
-      <View className="gap-2 rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
-        <Text className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+      <View style={[styles.sessionCard, isDark ? styles.sessionCardDark : styles.sessionCardLight]}>
+        <Text style={[styles.sessionTitle, isDark ? styles.sessionTitleDark : styles.sessionTitleLight]}>
           Session Information
         </Text>
-        <Text className="text-sm text-neutral-700 dark:text-neutral-200">
+        <Text style={[styles.sessionLine, isDark ? styles.sessionLineDark : styles.sessionLineLight]}>
           Status: {authState.status}
         </Text>
-        <Text className="text-sm text-neutral-700 dark:text-neutral-200">
+        <Text style={[styles.sessionLine, isDark ? styles.sessionLineDark : styles.sessionLineLight]}>
           Last authenticated: {formatLastAuth(authState.lastAuthenticatedAtMs)}
         </Text>
-        <Text className="text-sm text-neutral-700 dark:text-neutral-200">
+        <Text style={[styles.sessionLine, isDark ? styles.sessionLineDark : styles.sessionLineLight]}>
           Time until expiry: {formatRemaining(sessionRemainingMs)}
         </Text>
       </View>
@@ -140,7 +141,7 @@ export default function SettingsScreen() {
         />
       ) : null}
 
-      <View className="gap-2">
+      <View style={styles.actionsColumn}>
         <Button
           onPress={() => {
             void handleAuthenticate();
@@ -187,8 +188,91 @@ export default function SettingsScreen() {
       </View>
 
       {actionError ? (
-        <Text className="text-sm text-red-600 dark:text-red-400">{actionError}</Text>
+        <Text style={[styles.errorText, isDark ? styles.errorTextDark : styles.errorTextLight]}>
+          {actionError}
+        </Text>
       ) : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    gap: 16,
+    paddingTop: 20,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+  },
+  screenLight: {
+    backgroundColor: "#f5f5f5",
+  },
+  screenDark: {
+    backgroundColor: "#0a0a0a",
+  },
+  heading: {
+    fontSize: 30,
+    fontWeight: "700",
+  },
+  headingLight: {
+    color: "#171717",
+  },
+  headingDark: {
+    color: "#f5f5f5",
+  },
+  subheading: {
+    marginTop: 4,
+    fontSize: 14,
+  },
+  subheadingLight: {
+    color: "#525252",
+  },
+  subheadingDark: {
+    color: "#d4d4d4",
+  },
+  sessionCard: {
+    gap: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+  },
+  sessionCardLight: {
+    borderColor: "#e5e5e5",
+    backgroundColor: "#ffffff",
+  },
+  sessionCardDark: {
+    borderColor: "#404040",
+    backgroundColor: "#171717",
+  },
+  sessionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  sessionTitleLight: {
+    color: "#171717",
+  },
+  sessionTitleDark: {
+    color: "#f5f5f5",
+  },
+  sessionLine: {
+    fontSize: 14,
+  },
+  sessionLineLight: {
+    color: "#404040",
+  },
+  sessionLineDark: {
+    color: "#e5e5e5",
+  },
+  actionsColumn: {
+    gap: 8,
+  },
+  errorText: {
+    fontSize: 14,
+  },
+  errorTextLight: {
+    color: "#dc2626",
+  },
+  errorTextDark: {
+    color: "#f87171",
+  },
+});

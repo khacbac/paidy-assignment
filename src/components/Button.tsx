@@ -2,7 +2,12 @@ import { type ReactNode } from "react";
 import {
   ActivityIndicator,
   Pressable,
+  StyleSheet,
   Text,
+  useColorScheme,
+  type PressableStateCallbackType,
+  type StyleProp,
+  type ViewStyle,
   type PressableProps,
 } from "react-native";
 
@@ -14,46 +19,115 @@ type ButtonProps = Omit<PressableProps, "children"> & {
   loading?: boolean;
 };
 
-const CONTAINER_CLASSES: Record<ButtonVariant, string> = {
-  primary: "bg-blue-600",
-  secondary: "bg-neutral-800 dark:bg-neutral-200",
-  danger: "bg-red-600",
-  outline: "border border-neutral-300 dark:border-neutral-600",
-};
-
-const TEXT_CLASSES: Record<ButtonVariant, string> = {
-  primary: "text-white",
-  secondary: "text-white dark:text-neutral-900",
-  danger: "text-white",
-  outline: "text-neutral-900 dark:text-neutral-100",
-};
-
 export function Button({
   children,
   variant = "primary",
   loading = false,
   disabled,
+  style,
   ...rest
 }: ButtonProps) {
+  const isDark = useColorScheme() === "dark";
   const isDisabled = disabled || loading;
 
+  const containerStyle: StyleProp<ViewStyle> = [
+    styles.container,
+    variant === "primary" && styles.primaryContainer,
+    variant === "secondary" && (isDark ? styles.secondaryContainerDark : styles.secondaryContainer),
+    variant === "danger" && styles.dangerContainer,
+    variant === "outline" && (isDark ? styles.outlineContainerDark : styles.outlineContainer),
+    isDisabled && styles.disabled,
+  ];
+  const pressableStyle: PressableProps["style"] = (state: PressableStateCallbackType) => {
+    if (typeof style === "function") {
+      return [
+        containerStyle,
+        !isDisabled && state.pressed && styles.pressed,
+        style(state),
+      ];
+    }
+
+    return [containerStyle, !isDisabled && state.pressed && styles.pressed, style];
+  };
+
+  const textStyle = [
+    styles.text,
+    variant === "primary" && styles.primaryText,
+    variant === "secondary" && (isDark ? styles.secondaryTextDark : styles.secondaryText),
+    variant === "danger" && styles.dangerText,
+    variant === "outline" && (isDark ? styles.outlineTextDark : styles.outlineText),
+  ];
+
   return (
-    <Pressable
-      className={`min-h-11 flex-row items-center justify-center rounded-xl px-4 py-3 active:opacity-85 ${CONTAINER_CLASSES[variant]}`}
-      disabled={isDisabled}
-      style={isDisabled ? { opacity: 0.55 } : undefined}
-      {...rest}
-    >
+    <Pressable style={pressableStyle} disabled={isDisabled} {...rest}>
       {loading ? (
         <ActivityIndicator
-          color={variant === "outline" ? "#171717" : "#ffffff"}
+          color={variant === "outline" ? (isDark ? "#f5f5f5" : "#171717") : "#ffffff"}
           size="small"
         />
       ) : (
-        <Text className={`text-sm font-semibold ${TEXT_CLASSES[variant]}`}>
-          {children}
-        </Text>
+        <Text style={textStyle}>{children}</Text>
       )}
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    minHeight: 44,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  primaryContainer: {
+    backgroundColor: "#2563eb",
+  },
+  secondaryContainer: {
+    backgroundColor: "#262626",
+  },
+  secondaryContainerDark: {
+    backgroundColor: "#e5e5e5",
+  },
+  dangerContainer: {
+    backgroundColor: "#dc2626",
+  },
+  outlineContainer: {
+    borderWidth: 1,
+    borderColor: "#d4d4d4",
+  },
+  outlineContainerDark: {
+    borderWidth: 1,
+    borderColor: "#525252",
+  },
+  disabled: {
+    opacity: 0.55,
+  },
+  pressed: {
+    opacity: 0.85,
+  },
+  text: {
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  primaryText: {
+    color: "#ffffff",
+  },
+  secondaryText: {
+    color: "#ffffff",
+  },
+  secondaryTextDark: {
+    color: "#171717",
+  },
+  dangerText: {
+    color: "#ffffff",
+  },
+  outlineText: {
+    color: "#171717",
+  },
+  outlineTextDark: {
+    color: "#f5f5f5",
+  },
+});

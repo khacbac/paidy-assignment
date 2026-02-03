@@ -1,4 +1,4 @@
-import { Modal, Pressable, Text, View, Alert } from "react-native";
+import { Modal, Pressable, Text, View, Alert, StyleSheet, useColorScheme } from "react-native";
 
 import type { Todo } from "@/features/todos/types";
 import { HapticPatterns } from "@/utils/haptics";
@@ -22,6 +22,8 @@ export function TodoActionModal({
   onDelete,
   onDuplicate,
 }: TodoActionModalProps) {
+  const isDark = useColorScheme() === "dark";
+
   const handleClose = async () => {
     await HapticPatterns.LIGHT();
     onClose();
@@ -70,27 +72,27 @@ export function TodoActionModal({
         void handleClose();
       }}
     >
-      <View className="flex-1 items-center justify-center bg-black/45 px-5">
+      <View style={styles.overlay}>
         <Pressable
-          className="absolute inset-0"
+          style={StyleSheet.absoluteFillObject}
           onPress={() => {
             void handleClose();
           }}
           accessibilityLabel="Close todo actions"
         />
 
-        <View className="w-full max-w-md gap-4 rounded-2xl bg-white p-5 dark:bg-neutral-900">
-          <Text className="text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400">
+        <View style={[styles.sheet, isDark ? styles.sheetDark : styles.sheetLight]}>
+          <Text style={[styles.kicker, isDark ? styles.kickerDark : styles.kickerLight]}>
             Todo Actions
           </Text>
           <Text
-            className="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+            style={[styles.title, isDark ? styles.titleDark : styles.titleLight]}
             numberOfLines={2}
           >
             {todo.title}
           </Text>
 
-          <View className="gap-2">
+          <View style={styles.actions}>
             <Button
               variant="primary"
               onPress={() => {
@@ -136,3 +138,51 @@ export function TodoActionModal({
     </Modal>
   );
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
+    paddingHorizontal: 20,
+  },
+  sheet: {
+    width: "100%",
+    maxWidth: 448,
+    gap: 16,
+    borderRadius: 16,
+    padding: 20,
+  },
+  sheetLight: {
+    backgroundColor: "#ffffff",
+  },
+  sheetDark: {
+    backgroundColor: "#171717",
+  },
+  kicker: {
+    fontSize: 12,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  kickerLight: {
+    color: "#737373",
+  },
+  kickerDark: {
+    color: "#a3a3a3",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  titleLight: {
+    color: "#171717",
+  },
+  titleDark: {
+    color: "#f5f5f5",
+  },
+  actions: {
+    gap: 8,
+  },
+});

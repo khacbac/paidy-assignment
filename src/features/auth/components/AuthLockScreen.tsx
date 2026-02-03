@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Alert, View } from "react-native";
+import { Alert, StyleSheet, View, useColorScheme } from "react-native";
 
 import { useAuthGate } from "../authGate";
 
@@ -8,6 +8,7 @@ import { AuthPrompt } from "./AuthPrompt";
 export function AuthLockScreen() {
   const { ensureAuthenticated } = useAuthGate();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const isDark = useColorScheme() === "dark";
 
   const handleUnlock = async () => {
     if (isAuthenticating) return;
@@ -23,7 +24,7 @@ export function AuthLockScreen() {
   };
 
   return (
-    <View className="flex-1 items-center justify-center bg-neutral-100 p-6 dark:bg-neutral-950">
+    <View style={[styles.container, isDark ? styles.containerDark : styles.containerLight]}>
       <AuthPrompt
         title="App Locked"
         message="Authenticate to continue to your todos and settings."
@@ -34,3 +35,18 @@ export function AuthLockScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+  },
+  containerLight: {
+    backgroundColor: "#f5f5f5",
+  },
+  containerDark: {
+    backgroundColor: "#0a0a0a",
+  },
+});

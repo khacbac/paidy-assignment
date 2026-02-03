@@ -1,22 +1,71 @@
-import { Text, TextInput, type TextInputProps, View } from "react-native";
+import { StyleSheet, Text, TextInput, useColorScheme, type TextInputProps, View } from "react-native";
 
 type InputProps = TextInputProps & {
   label?: string;
   errorMessage?: string;
 };
 
-export function Input({ label, errorMessage, ...rest }: InputProps) {
+export function Input({ label, errorMessage, style, ...rest }: InputProps) {
+  const isDark = useColorScheme() === "dark";
+
   return (
-    <View className="gap-1">
-      {label ? <Text className="text-sm font-medium text-neutral-700 dark:text-neutral-200">{label}</Text> : null}
+    <View style={styles.container}>
+      {label ? <Text style={[styles.label, isDark ? styles.labelDark : styles.labelLight]}>{label}</Text> : null}
       <TextInput
-        className="min-h-11 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-neutral-900 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
+        style={[
+          styles.input,
+          isDark ? styles.inputDark : styles.inputLight,
+          style,
+        ]}
         placeholderTextColor="#737373"
         {...rest}
       />
       {errorMessage ? (
-        <Text className="text-xs text-red-600 dark:text-red-400">{errorMessage}</Text>
+        <Text style={[styles.error, isDark ? styles.errorDark : styles.errorLight]}>{errorMessage}</Text>
       ) : null}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 4,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  labelLight: {
+    color: "#404040",
+  },
+  labelDark: {
+    color: "#e5e5e5",
+  },
+  input: {
+    minHeight: 44,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 16,
+  },
+  inputLight: {
+    borderColor: "#d4d4d4",
+    backgroundColor: "#ffffff",
+    color: "#171717",
+  },
+  inputDark: {
+    borderColor: "#525252",
+    backgroundColor: "#171717",
+    color: "#f5f5f5",
+  },
+  error: {
+    fontSize: 12,
+  },
+  errorLight: {
+    color: "#dc2626",
+  },
+  errorDark: {
+    color: "#f87171",
+  },
+});

@@ -1,6 +1,6 @@
 import { useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { View, Text } from "react-native";
+import { StyleSheet, View, Text } from "react-native";
 
 import { authStateAtom } from "@/features/auth/_atoms/auth";
 import { getSessionRemainingMsForLevel } from "@/features/auth/session";
@@ -22,10 +22,8 @@ export function AuthSessionIndicator({ level = AuthLevel.TRUSTED }: AuthSessionI
   );
 
   useEffect(() => {
-    // Update immediately when auth state changes
     setRemainingMs(getSessionRemainingMsForLevel(authState.lastAuthenticatedAtMs, level));
 
-    // Update every second while session is valid
     if (authState.lastAuthenticatedAtMs) {
       const interval = setInterval(() => {
         const timeLeft = getSessionRemainingMsForLevel(authState.lastAuthenticatedAtMs, level);
@@ -36,19 +34,46 @@ export function AuthSessionIndicator({ level = AuthLevel.TRUSTED }: AuthSessionI
     }
   }, [authState.lastAuthenticatedAtMs, level]);
 
-  // Only show when session is active
   if (!authState.lastAuthenticatedAtMs || remainingMs <= 0) {
     return null;
   }
 
-  // Color based on remaining time
-  const isLow = remainingMs < 30000; // Less than 30 seconds
-  const colorClass = isLow ? "text-red-500" : "text-green-500";
+  const isLow = remainingMs < 30000;
 
   return (
-    <View className="flex-row items-center">
-      <View className={`h-2 w-2 rounded-full ${isLow ? "bg-red-500" : "bg-green-500"} mr-2`} />
-      <Text className={`text-xs ${colorClass}`}>{formatRemainingTime(remainingMs)}</Text>
+    <View style={styles.container}>
+      <View style={[styles.dot, isLow ? styles.dotLow : styles.dotHealthy]} />
+      <Text style={[styles.text, isLow ? styles.textLow : styles.textHealthy]}>
+        {formatRemainingTime(remainingMs)}
+      </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 999,
+    marginRight: 8,
+  },
+  dotLow: {
+    backgroundColor: "#ef4444",
+  },
+  dotHealthy: {
+    backgroundColor: "#22c55e",
+  },
+  text: {
+    fontSize: 12,
+  },
+  textLow: {
+    color: "#ef4444",
+  },
+  textHealthy: {
+    color: "#22c55e",
+  },
+});

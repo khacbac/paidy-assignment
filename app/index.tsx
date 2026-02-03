@@ -1,7 +1,7 @@
 import { Link } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useMemo, useState } from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
 
 import { Button } from "@/components/Button";
 import { AddTodoForm } from "@/features/todos/components/AddTodoForm";
@@ -55,6 +55,7 @@ export default function TodosScreen() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isClearingCompleted, setIsClearingCompleted] = useState(false);
+  const isDark = useColorScheme() === "dark";
 
   const visibleTodosAtom = useMemo(() => filteredTodosAtom(filter), [filter]);
   const visibleTodos = useAtomValue(visibleTodosAtom);
@@ -171,13 +172,11 @@ export default function TodosScreen() {
   const emptyState = getEmptyState(filter);
 
   return (
-    <View className="flex-1 bg-neutral-100 px-4 pb-4 pt-5 dark:bg-neutral-950">
-      <View className="gap-4">
+    <View style={[styles.screen, isDark ? styles.screenDark : styles.screenLight]}>
+      <View style={styles.topSection}>
         <View>
-          <Text className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
-            Todos
-          </Text>
-          <Text className="mt-1 text-sm text-neutral-600 dark:text-neutral-300">
+          <Text style={[styles.heading, isDark ? styles.headingDark : styles.headingLight]}>Todos</Text>
+          <Text style={[styles.subheading, isDark ? styles.subheadingDark : styles.subheadingLight]}>
             Protected actions require local authentication.
           </Text>
         </View>
@@ -202,7 +201,9 @@ export default function TodosScreen() {
         />
 
         {actionError ? (
-          <Text className="text-sm text-red-600 dark:text-red-400">{actionError}</Text>
+          <Text style={[styles.errorText, isDark ? styles.errorTextDark : styles.errorTextLight]}>
+            {actionError}
+          </Text>
         ) : null}
 
         <TodoFilters
@@ -213,8 +214,8 @@ export default function TodosScreen() {
           onChangeFilter={setFilter}
         />
 
-        <View className="flex-row gap-2">
-          <View className="flex-1">
+        <View style={styles.actionRow}>
+          <View style={styles.flexOne}>
             <Button
               variant="outline"
               onPress={() => {
@@ -228,7 +229,7 @@ export default function TodosScreen() {
             </Button>
           </View>
 
-          <View className="flex-1">
+          <View style={styles.flexOne}>
             <Link href="/settings" asChild>
               <Button variant="secondary" accessibilityLabel="Open settings screen">
                 Settings
@@ -238,7 +239,7 @@ export default function TodosScreen() {
         </View>
       </View>
 
-      <View className="mt-4 flex-1">
+      <View style={styles.listContainer}>
         <TodoList
           todos={visibleTodos}
           onToggle={(id) => {
@@ -272,3 +273,61 @@ export default function TodosScreen() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    paddingTop: 20,
+    paddingBottom: 16,
+    paddingHorizontal: 16,
+  },
+  screenLight: {
+    backgroundColor: "#f5f5f5",
+  },
+  screenDark: {
+    backgroundColor: "#0a0a0a",
+  },
+  topSection: {
+    gap: 16,
+  },
+  heading: {
+    fontSize: 30,
+    fontWeight: "700",
+  },
+  headingLight: {
+    color: "#171717",
+  },
+  headingDark: {
+    color: "#f5f5f5",
+  },
+  subheading: {
+    marginTop: 4,
+    fontSize: 14,
+  },
+  subheadingLight: {
+    color: "#525252",
+  },
+  subheadingDark: {
+    color: "#d4d4d4",
+  },
+  errorText: {
+    fontSize: 14,
+  },
+  errorTextLight: {
+    color: "#dc2626",
+  },
+  errorTextDark: {
+    color: "#f87171",
+  },
+  actionRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  flexOne: {
+    flex: 1,
+  },
+  listContainer: {
+    marginTop: 16,
+    flex: 1,
+  },
+});

@@ -3,7 +3,6 @@ module.exports = (api) => {
   return {
     presets: [
       ["babel-preset-expo", { jsxRuntime: "automatic" }],
-      "nativewind/babel",
     ],
     plugins: [
       [

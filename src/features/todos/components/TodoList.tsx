@@ -1,4 +1,4 @@
-import { FlatList, View } from "react-native";
+import { FlatList } from "react-native";
 
 import { EmptyState } from "@/components/EmptyState";
 import type { Todo } from "@/features/todos/types";
@@ -57,7 +57,6 @@ export function TodoList({
           onAutoEditHandled={onAutoEditHandled}
         />
       )}
-      ItemSeparatorComponent={() => <View className="h-0" />}
     />
   );
 }

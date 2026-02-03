@@ -1,4 +1,4 @@
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View, useColorScheme } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
@@ -27,11 +27,20 @@ export function TodoItem({
   onSaveTitle,
   onDelete,
 }: TodoItemProps) {
+  const isDark = useColorScheme() === "dark";
+
   return (
-    <View className="gap-3 rounded-2xl border border-neutral-200 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900">
-      <View className="flex-row items-center justify-between gap-3">
+    <View style={[styles.container, isDark ? styles.containerDark : styles.containerLight]}>
+      <View style={styles.headerRow}>
         <Text
-          className={`text-base font-semibold ${todo.completed ? "text-neutral-500 line-through" : "text-neutral-900 dark:text-neutral-100"}`}
+          style={[
+            styles.title,
+            todo.completed
+              ? styles.titleCompleted
+              : isDark
+                ? styles.titleDark
+                : styles.titleLight,
+          ]}
           numberOfLines={1}
         >
           {todo.title}
@@ -54,8 +63,8 @@ export function TodoItem({
         accessibilityLabel={`Edit title for ${todo.title}`}
       />
 
-      <View className="flex-row gap-2">
-        <View className="flex-1">
+      <View style={styles.actionRow}>
+        <View style={styles.flexOne}>
           <Button
             variant="outline"
             onPress={onSaveTitle}
@@ -65,7 +74,7 @@ export function TodoItem({
             Save
           </Button>
         </View>
-        <View className="flex-1">
+        <View style={styles.flexOne}>
           <Button
             variant="danger"
             onPress={onDelete}
@@ -77,12 +86,66 @@ export function TodoItem({
         </View>
       </View>
 
-      <Text className="text-xs text-neutral-500 dark:text-neutral-400">
+      <Text style={[styles.timestamp, isDark ? styles.timestampDark : styles.timestampLight]}>
         Created {formatTimestamp(todo.createdAtMs)}
       </Text>
-      <Text className="text-xs text-neutral-500 dark:text-neutral-400">
+      <Text style={[styles.timestamp, isDark ? styles.timestampDark : styles.timestampLight]}>
         Updated {formatTimestamp(todo.updatedAtMs)}
       </Text>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    padding: 16,
+  },
+  containerLight: {
+    borderColor: "#e5e5e5",
+    backgroundColor: "#ffffff",
+  },
+  containerDark: {
+    borderColor: "#404040",
+    backgroundColor: "#171717",
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  title: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  titleLight: {
+    color: "#171717",
+  },
+  titleDark: {
+    color: "#f5f5f5",
+  },
+  titleCompleted: {
+    color: "#737373",
+    textDecorationLine: "line-through",
+  },
+  actionRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  flexOne: {
+    flex: 1,
+  },
+  timestamp: {
+    fontSize: 12,
+  },
+  timestampLight: {
+    color: "#737373",
+  },
+  timestampDark: {
+    color: "#a3a3a3",
+  },
+});

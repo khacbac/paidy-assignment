@@ -8,11 +8,11 @@
 - `assets/` stores static images/icons; avoid mixing generated files into source folders.
 
 ## Build, Test, and Development Commands
-- `npm install` — install dependencies.
-- `npm run start` — start Expo dev server.
-- `npm run ios` / `npm run android` / `npm run web` — launch platform-specific targets.
-- `npm run lint` — run ESLint on `app/**/*.ts(x)` and `src/**/*.ts(x)`.
-- `npm run reset-project` — reset starter app scaffold (use only when intentionally reinitializing).
+- `pnpm install` — install dependencies.
+- `pnpm start` — start Expo dev server.
+- `pnpm ios` / `pnpm android` / `pnpm web` — launch platform-specific targets.
+- `pnpm lint` — run ESLint on `app/**/*.ts(x)` and `src/**/*.ts(x)`.
+- `pnpm reset-project` — reset starter app scaffold (use only when intentionally reinitializing).
 
 ## Coding Style & Naming Conventions
 - TypeScript is strict (`tsconfig.json`), so prefer explicit types at feature boundaries.
@@ -24,7 +24,7 @@
 ## Testing Guidelines
 - No test runner is configured yet. When adding tests, prefer colocated `*.test.ts` / `*.test.tsx` files near the target module.
 - Prioritize unit tests for pure logic in `src/features/**` and `src/lib/**` (e.g., session validity, storage wrappers).
-- At minimum, run `npm run lint` before opening a PR.
+- At minimum, run `pnpm lint` before opening a PR.
 
 ## Commit & Pull Request Guidelines
 - Current history is minimal (`init`, `Construct the codebase skeleton`); use clear, imperative commit messages (e.g., `feat(auth): add session expiry check`).

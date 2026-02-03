@@ -1,50 +1,96 @@
-# Welcome to your Expo app 👋
+# Secured TODO List
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native + Expo TODO list application with biometric authentication. Users must authenticate via Face ID/Touch ID before performing CRUD operations on todos.
 
-## Get started
+## Features
 
-1. Install dependencies
+- Biometric authentication (Face ID / Touch ID)
+- Session-based access with configurable TTL
+- Tiered auth levels (Trusted, Sensitive, Critical)
+- Persistent storage with SecureStore and AsyncStorage
+- File-based routing with Expo Router
 
-   ```bash
-   npm install
-   ```
+## Getting Started
 
-2. Start the app
+### Prerequisites
 
-   ```bash
-   npx expo start
-   ```
+- Node.js 18+
+- iOS Simulator or Android Emulator
+- Expo CLI
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Installation
 
 ```bash
-npm run reset-project
+pnpm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Running the App
 
-## Learn more
+**Important**: This app uses `expo-local-authentication` for biometrics, which requires a [development build](https://docs.expo.dev/develop/development-builds/introduction/) (not Expo Go).
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+# Generate native projects (required once)
+pnpm expo prebuild
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# Run development build
+pnpm expo run:ios      # iOS simulator
+pnpm expo run:android  # Android emulator
+```
 
-## Join the community
+For development server only:
+```bash
+pnpm start
+```
 
-Join our community of developers creating universal apps.
+## Project Structure
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+app/                    # Expo Router screens (file-based routing)
+src/
+  features/
+    auth/               # Authentication module
+      _atoms/           # Jotai atoms for auth state
+      components/       # Auth-related components
+      types.ts          # Auth types and levels
+    todos/              # TODO list module
+      _atoms/           # Jotai atoms for todos state
+      components/       # Todo-related components
+  lib/
+    jotai/              # Jotai setup and storage adapters
+    storage/            # AsyncStorage and SecureStore adapters
+  components/           # Shared UI components
+```
+
+## Authentication
+
+The app uses a session-based authentication system with three auth levels:
+
+| Level | Use Case | Grace Period |
+|-------|----------|--------------|
+| TRUSTED | Low-risk actions | 5 minutes |
+| SENSITIVE | Medium-risk actions | 2 minutes |
+| CRITICAL | Delete, clear all | Always requires fresh auth |
+
+## Tech Stack
+
+- **Framework**: React Native + Expo
+- **Routing**: Expo Router (file-based)
+- **State Management**: Jotai
+- **Styling**: NativeWind (Tailwind CSS)
+- **Storage**: AsyncStorage + SecureStore
+- **Auth**: expo-local-authentication
+
+## Scripts
+
+```bash
+pnpm start       # Start Expo dev server
+pnpm ios         # Start iOS simulator
+pnpm android     # Start Android emulator
+pnpm lint        # Run ESLint
+pnpm test        # Run all tests
+pnpm test:watch  # Run tests in watch mode
+```
+
+## License
+
+MIT

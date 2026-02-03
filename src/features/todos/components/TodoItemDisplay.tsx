@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, useColorScheme } from "react-native";
 
 import type { Todo } from "@/features/todos/types";
 import { HapticPatterns } from "@/utils/haptics";
@@ -18,43 +18,51 @@ export function TodoItemDisplay({
   onToggle,
   onOpenActions,
 }: TodoItemDisplayProps) {
+  const isDark = useColorScheme() === "dark";
+
   return (
     <Pressable
-      className="overflow-hidden rounded-2xl border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-900"
+      style={[styles.container, isDark ? styles.containerDark : styles.containerLight]}
       onPress={async () => {
         await HapticPatterns.LIGHT();
         onOpenActions();
       }}
       accessibilityLabel={`${todo.title} - ${todo.completed ? "Completed" : "Active"}`}
     >
-      <View className="flex-row items-center gap-3 p-4">
+      <View style={styles.contentRow}>
         <Pressable
           onPress={async (event) => {
             event.stopPropagation();
             await HapticPatterns.LIGHT();
             onToggle();
           }}
-          className="h-6 w-6 items-center justify-center"
+          style={styles.checkboxTouchTarget}
           accessibilityLabel={todo.completed ? "Mark as active" : "Mark as completed"}
         >
           <View
-            className={`h-6 w-6 items-center justify-center rounded-md border-2 ${
+            style={[
+              styles.checkbox,
               todo.completed
-                ? "border-green-500 bg-green-500"
-                : "border-neutral-300 bg-transparent dark:border-neutral-600"
-            }`}
+                ? styles.checkboxCompleted
+                : isDark
+                  ? styles.checkboxDark
+                  : styles.checkboxLight,
+            ]}
           >
-            {todo.completed && <Text className="text-xs font-bold text-white">✓</Text>}
+            {todo.completed && <Text style={styles.checkmark}>✓</Text>}
           </View>
         </Pressable>
 
-        <View className="flex-1">
+        <View style={styles.titleWrapper}>
           <Text
-            className={`text-lg font-medium ${
+            style={[
+              styles.title,
               todo.completed
-                ? "text-neutral-400 line-through"
-                : "text-neutral-900 dark:text-neutral-100"
-            }`}
+                ? styles.titleCompleted
+                : isDark
+                  ? styles.titleDark
+                  : styles.titleLight,
+            ]}
             numberOfLines={2}
             accessibilityLabel={`Open actions for ${todo.title}`}
           >
@@ -65,3 +73,73 @@ export function TodoItemDisplay({
     </Pressable>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    overflow: "hidden",
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  containerLight: {
+    borderColor: "#e5e5e5",
+    backgroundColor: "#ffffff",
+  },
+  containerDark: {
+    borderColor: "#404040",
+    backgroundColor: "#171717",
+  },
+  contentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    padding: 16,
+  },
+  checkboxTouchTarget: {
+    width: 24,
+    height: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkbox: {
+    height: 24,
+    width: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 6,
+    borderWidth: 2,
+  },
+  checkboxLight: {
+    borderColor: "#d4d4d4",
+    backgroundColor: "transparent",
+  },
+  checkboxDark: {
+    borderColor: "#525252",
+    backgroundColor: "transparent",
+  },
+  checkboxCompleted: {
+    borderColor: "#22c55e",
+    backgroundColor: "#22c55e",
+  },
+  checkmark: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#ffffff",
+  },
+  titleWrapper: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "500",
+  },
+  titleLight: {
+    color: "#171717",
+  },
+  titleDark: {
+    color: "#f5f5f5",
+  },
+  titleCompleted: {
+    color: "#a3a3a3",
+    textDecorationLine: "line-through",
+  },
+});
