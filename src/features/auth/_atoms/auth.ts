@@ -1,5 +1,6 @@
 import { atom } from "jotai";
 import {
+  clearLastAuthenticatedAtMs,
   getLastAuthenticatedAtMs,
   setLastAuthenticatedAtMs,
 } from "../secureAuthStorage";
@@ -12,19 +13,29 @@ const initialAuthState: AuthState = {
 };
 
 export const authStateAtom = atom<AuthState>(initialAuthState);
+export const authHydratedAtom = atom(false);
 
 export const refreshAuthAtom = atom(null, async (_get, set) => {
-  const persisted = await getLastAuthenticatedAtMs();
-  const nowMs = Date.now();
-  const valid = persisted != null && isSessionValid(persisted, nowMs);
-  set(authStateAtom, {
-    status: valid ? "unlocked" : "locked",
-    lastAuthenticatedAtMs: persisted,
-  });
+  try {
+    const persisted = await getLastAuthenticatedAtMs();
+    const nowMs = Date.now();
+    const valid = persisted != null && isSessionValid(persisted, nowMs);
+    set(authStateAtom, {
+      status: valid ? "unlocked" : "locked",
+      lastAuthenticatedAtMs: persisted,
+    });
+  } finally {
+    set(authHydratedAtom, true);
+  }
 });
 
-export const lockAuthAtom = atom(null, (_get, set) => {
-  set(authStateAtom, (prev) => ({ ...prev, status: "locked" }));
+export const lockAuthAtom = atom(null, async (_get, set) => {
+  await clearLastAuthenticatedAtMs();
+  set(authStateAtom, (prev) => ({
+    ...prev,
+    status: "locked",
+    lastAuthenticatedAtMs: null,
+  }));
 });
 
 export const unlockAuthAtom = atom(
