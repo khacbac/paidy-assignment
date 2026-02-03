@@ -1,8 +1,9 @@
 import { Stack } from "expo-router";
 import { useAtomValue } from "jotai";
-import { ActivityIndicator, Text, View } from "react-native";
+import { View } from "react-native";
 import "../global.css";
 
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { authHydratedAtom, authStateAtom } from "@/features/auth/_atoms/auth";
 import { AuthLockScreen } from "@/features/auth/components/AuthLockScreen";
 import { useAuthInit } from "@/features/auth/useAppStateLock";
@@ -19,9 +20,8 @@ function AppContent() {
 
   if (!isAuthHydrated) {
     return (
-      <View className="flex-1 items-center justify-center gap-3">
-        <ActivityIndicator />
-        <Text className="opacity-70">Loading secure session...</Text>
+      <View className="flex-1 items-center justify-center bg-neutral-100 px-6 dark:bg-neutral-950">
+        <LoadingSpinner message="Loading secure session..." />
       </View>
     );
   }
@@ -31,8 +31,19 @@ function AppContent() {
   }
 
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ title: "Todos" }} />
+    <Stack
+      screenOptions={{
+        headerShadowVisible: false,
+        headerStyle: {
+          backgroundColor: "#f5f5f5",
+        },
+        headerTitleStyle: {
+          fontWeight: "700",
+        },
+        animation: "slide_from_right",
+      }}
+    >
+      <Stack.Screen name="index" options={{ title: "Todo List" }} />
       <Stack.Screen name="settings" options={{ title: "Settings" }} />
     </Stack>
   );
