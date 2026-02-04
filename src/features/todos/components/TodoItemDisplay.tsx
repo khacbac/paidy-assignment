@@ -1,5 +1,12 @@
-import { Pressable, StyleSheet, Text, View, useColorScheme } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
 
+import { formatTimestamp } from "@/features/todos/formatTimestamp";
 import type { Todo } from "@/features/todos/types";
 import { HapticPatterns } from "@/utils/haptics";
 
@@ -22,12 +29,17 @@ export function TodoItemDisplay({
 
   return (
     <Pressable
-      style={[styles.container, isDark ? styles.containerDark : styles.containerLight]}
+      style={[
+        styles.container,
+        isDark ? styles.containerDark : styles.containerLight,
+      ]}
       onPress={async () => {
         await HapticPatterns.LIGHT();
         onOpenActions();
       }}
-      accessibilityLabel={`${todo.title} - ${todo.completed ? "Completed" : "Active"}`}
+      accessibilityLabel={`${todo.title} - ${
+        todo.completed ? "Completed" : "Active"
+      }`}
     >
       <View style={styles.contentRow}>
         <Pressable
@@ -37,7 +49,9 @@ export function TodoItemDisplay({
             onToggle();
           }}
           style={styles.checkboxTouchTarget}
-          accessibilityLabel={todo.completed ? "Mark as active" : "Mark as completed"}
+          accessibilityLabel={
+            todo.completed ? "Mark as active" : "Mark as completed"
+          }
         >
           <View
             style={[
@@ -45,8 +59,8 @@ export function TodoItemDisplay({
               todo.completed
                 ? styles.checkboxCompleted
                 : isDark
-                  ? styles.checkboxDark
-                  : styles.checkboxLight,
+                ? styles.checkboxDark
+                : styles.checkboxLight,
             ]}
           >
             {todo.completed && <Text style={styles.checkmark}>✓</Text>}
@@ -60,14 +74,32 @@ export function TodoItemDisplay({
               todo.completed
                 ? styles.titleCompleted
                 : isDark
-                  ? styles.titleDark
-                  : styles.titleLight,
+                ? styles.titleDark
+                : styles.titleLight,
             ]}
             numberOfLines={2}
             accessibilityLabel={`Open actions for ${todo.title}`}
           >
             {todo.title}
           </Text>
+          <View style={styles.timestampWrapper}>
+            <Text
+              style={[
+                styles.timestamp,
+                isDark ? styles.timestampDark : styles.timestampLight,
+              ]}
+            >
+              Created {formatTimestamp(todo.createdAtMs)}
+            </Text>
+            <Text
+              style={[
+                styles.timestamp,
+                isDark ? styles.timestampDark : styles.timestampLight,
+              ]}
+            >
+              Updated {formatTimestamp(todo.updatedAtMs)}
+            </Text>
+          </View>
         </View>
       </View>
     </Pressable>
@@ -127,6 +159,7 @@ const styles = StyleSheet.create({
   },
   titleWrapper: {
     flex: 1,
+    gap: 6,
   },
   title: {
     fontSize: 18,
@@ -141,5 +174,17 @@ const styles = StyleSheet.create({
   titleCompleted: {
     color: "#a3a3a3",
     textDecorationLine: "line-through",
+  },
+  timestampWrapper: {
+    gap: 2,
+  },
+  timestamp: {
+    fontSize: 12,
+  },
+  timestampLight: {
+    color: "#737373",
+  },
+  timestampDark: {
+    color: "#a3a3a3",
   },
 });

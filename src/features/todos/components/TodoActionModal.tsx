@@ -1,11 +1,17 @@
-import { useCallback, useEffect, useState } from "react";
-import { Alert, Modal, Pressable, StyleSheet, Text, View, useColorScheme } from "react-native";
-
+import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import type { Todo } from "@/features/todos/types";
 import { HapticPatterns } from "@/utils/haptics";
-
-import { Button } from "@/components/Button";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Alert,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
 
 type TodoActionModalProps = {
   todo: Todo;
@@ -138,12 +144,22 @@ export function TodoActionModal({
           accessibilityLabel="Close todo actions"
         />
 
-        <View style={[styles.sheet, isDark ? styles.sheetDark : styles.sheetLight]}>
-          <Text style={[styles.kicker, isDark ? styles.kickerDark : styles.kickerLight]}>
+        <View
+          style={[styles.sheet, isDark ? styles.sheetDark : styles.sheetLight]}
+        >
+          <Text
+            style={[
+              styles.kicker,
+              isDark ? styles.kickerDark : styles.kickerLight,
+            ]}
+          >
             {isEditing ? "Edit Todo" : "Todo Actions"}
           </Text>
           <Text
-            style={[styles.title, isDark ? styles.titleDark : styles.titleLight]}
+            style={[
+              styles.title,
+              isDark ? styles.titleDark : styles.titleLight,
+            ]}
             numberOfLines={2}
           >
             {isEditing ? "Update the title below." : todo.title}

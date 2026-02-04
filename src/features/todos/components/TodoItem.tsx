@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View, useColorScheme } from "react-native";
+import { StyleSheet, Text, useColorScheme, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
+import { formatTimestamp } from "@/features/todos/formatTimestamp";
 import type { Todo } from "@/features/todos/types";
 
 type TodoItemProps = {
@@ -13,10 +14,6 @@ type TodoItemProps = {
   onSaveTitle: () => void;
   onDelete: () => void;
 };
-
-function formatTimestamp(ms: number): string {
-  return new Date(ms).toLocaleString();
-}
 
 export function TodoItem({
   todo,
@@ -30,7 +27,12 @@ export function TodoItem({
   const isDark = useColorScheme() === "dark";
 
   return (
-    <View style={[styles.container, isDark ? styles.containerDark : styles.containerLight]}>
+    <View
+      style={[
+        styles.container,
+        isDark ? styles.containerDark : styles.containerLight,
+      ]}
+    >
       <View style={styles.headerRow}>
         <Text
           style={[
@@ -38,8 +40,8 @@ export function TodoItem({
             todo.completed
               ? styles.titleCompleted
               : isDark
-                ? styles.titleDark
-                : styles.titleLight,
+              ? styles.titleDark
+              : styles.titleLight,
           ]}
           numberOfLines={1}
         >
@@ -49,7 +51,9 @@ export function TodoItem({
           variant={todo.completed ? "outline" : "secondary"}
           onPress={onToggle}
           disabled={busy}
-          accessibilityLabel={todo.completed ? "Mark todo as active" : "Mark todo as completed"}
+          accessibilityLabel={
+            todo.completed ? "Mark todo as active" : "Mark todo as completed"
+          }
         >
           {todo.completed ? "Undo" : "Done"}
         </Button>
@@ -86,10 +90,20 @@ export function TodoItem({
         </View>
       </View>
 
-      <Text style={[styles.timestamp, isDark ? styles.timestampDark : styles.timestampLight]}>
+      <Text
+        style={[
+          styles.timestamp,
+          isDark ? styles.timestampDark : styles.timestampLight,
+        ]}
+      >
         Created {formatTimestamp(todo.createdAtMs)}
       </Text>
-      <Text style={[styles.timestamp, isDark ? styles.timestampDark : styles.timestampLight]}>
+      <Text
+        style={[
+          styles.timestamp,
+          isDark ? styles.timestampDark : styles.timestampLight,
+        ]}
+      >
         Updated {formatTimestamp(todo.updatedAtMs)}
       </Text>
     </View>
