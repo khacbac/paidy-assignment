@@ -1,6 +1,7 @@
-import { Stack } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { Stack, useRouter } from "expo-router";
 import { useAtomValue } from "jotai";
-import { StyleSheet, useColorScheme, View } from "react-native";
+import { Pressable, StyleSheet, useColorScheme, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -18,6 +19,7 @@ function AppContent() {
   const authState = useAtomValue(authStateAtom);
   const isAuthHydrated = useAtomValue(authHydratedAtom);
   const isDark = useColorScheme() === "dark";
+  const router = useRouter();
 
   if (!isAuthHydrated) {
     return (
@@ -50,7 +52,29 @@ function AppContent() {
         animation: "slide_from_right",
       }}
     >
-      <Stack.Screen name="index" options={{ title: "Todo List" }} />
+      <Stack.Screen
+        name="index"
+        options={{
+          title: "Todo List",
+          headerRight: () => (
+            <Pressable
+              onPress={() => {
+                router.push("/settings");
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Open settings"
+              hitSlop={8}
+              style={styles.settingsButton}
+            >
+              <Ionicons
+                name="settings-outline"
+                size={22}
+                color={isDark ? "#f5f5f5" : "#171717"}
+              />
+            </Pressable>
+          ),
+        }}
+      />
       <Stack.Screen name="settings" options={{ title: "Settings" }} />
       <Stack.Screen
         name="todo-actions"
@@ -87,5 +111,8 @@ const styles = StyleSheet.create({
   },
   loadingContainerDark: {
     backgroundColor: "#0a0a0a",
+  },
+  settingsButton: {
+    padding: 4,
   },
 });

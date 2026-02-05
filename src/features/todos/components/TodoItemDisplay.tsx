@@ -126,14 +126,6 @@ export function TodoItemDisplay({
               Updated {formatTimestamp(todo.updatedAtMs)}
             </Text>
           </View>
-          <Text
-            style={[
-              styles.timestamp,
-              isDark ? styles.timestampDark : styles.timestampLight,
-            ]}
-          >
-            Created {formatTimestamp(todo.createdAtMs)}
-          </Text>
         </View>
       </View>
     </Pressable>

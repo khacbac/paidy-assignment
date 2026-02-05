@@ -1,4 +1,4 @@
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, useColorScheme, View } from "react-native";
@@ -87,30 +87,17 @@ export default function TodosScreen() {
           </Text>
         ) : null}
 
-        <View style={styles.actionRow}>
-          <View style={styles.flexOne}>
-            <Button
-              variant="outline"
-              onPress={() => {
-                void handleClearCompleted();
-              }}
-              loading={isClearingCompleted}
-              disabled={completedTodosCount === 0}
-              accessibilityLabel="Clear completed todos"
-            >
-              Clear
-            </Button>
-          </View>
-
-          <View style={styles.flexOne}>
-            <Link href="/settings" asChild>
-              <Button variant="secondary" accessibilityLabel="Open settings">
-                Settings
-              </Button>
-            </Link>
-          </View>
-
-        </View>
+        <Button
+          variant="outline"
+          onPress={() => {
+            void handleClearCompleted();
+          }}
+          loading={isClearingCompleted}
+          disabled={completedTodosCount === 0}
+          accessibilityLabel="Clear completed todos"
+        >
+          Clear
+        </Button>
       </View>
 
       <View style={styles.listContainer}>
@@ -164,13 +151,6 @@ const styles = StyleSheet.create({
   },
   topSection: {
     gap: 12,
-  },
-  actionRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  flexOne: {
-    flex: 1,
   },
   errorText: {
     fontSize: 14,

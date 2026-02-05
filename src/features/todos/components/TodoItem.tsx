@@ -96,14 +96,6 @@ export function TodoItem({
           isDark ? styles.timestampDark : styles.timestampLight,
         ]}
       >
-        Created {formatTimestamp(todo.createdAtMs)}
-      </Text>
-      <Text
-        style={[
-          styles.timestamp,
-          isDark ? styles.timestampDark : styles.timestampLight,
-        ]}
-      >
         Updated {formatTimestamp(todo.updatedAtMs)}
       </Text>
     </View>
