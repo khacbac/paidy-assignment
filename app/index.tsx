@@ -157,7 +157,7 @@ export default function TodosScreen() {
               disabled={completedTodosCount === 0}
               accessibilityLabel="Clear completed todos"
             >
-              Clear Completed
+              Clear
             </Button>
           </View>
 
@@ -173,7 +173,7 @@ export default function TodosScreen() {
             <View style={styles.flexOne}>
               <Link href="/all-todos" asChild>
                 <Button variant="secondary" accessibilityLabel="Show all todos">
-                  Show All
+                  All
                 </Button>
               </Link>
             </View>
@@ -189,7 +189,7 @@ export default function TodosScreen() {
           }}
           emptyTitle={emptyState.title}
           emptyDescription={emptyState.description}
-          emptyActionLabel={filter === "all" ? undefined : "Show all todos"}
+          emptyActionLabel={filter === "all" ? undefined : "All todos"}
           onEmptyAction={
             filter === "all"
               ? undefined

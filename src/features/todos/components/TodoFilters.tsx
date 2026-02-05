@@ -14,7 +14,7 @@ type TodoFiltersProps = {
 const FILTERS: { value: TodoFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "active", label: "Active" },
-  { value: "completed", label: "Completed" },
+  { value: "completed", label: "Done" },
 ];
 
 export function TodoFilters({

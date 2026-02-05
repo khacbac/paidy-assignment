@@ -123,7 +123,7 @@ export default function AllTodosScreen() {
               disabled={completedTodosCount === 0}
               accessibilityLabel="Clear completed todos"
             >
-              Clear Completed
+              Clear
             </Button>
           </View>
 
@@ -148,7 +148,7 @@ export default function AllTodosScreen() {
           }}
           emptyTitle={emptyState.title}
           emptyDescription={emptyState.description}
-          emptyActionLabel={filter === "all" ? undefined : "Show all todos"}
+          emptyActionLabel={filter === "all" ? undefined : "All todos"}
           onEmptyAction={
             filter === "all"
               ? undefined
