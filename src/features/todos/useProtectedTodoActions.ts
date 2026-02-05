@@ -26,11 +26,12 @@ export function useProtectedTodoActions() {
     async <T>(
       reason: string,
       level: AuthLevel,
-      action: () => T | Promise<T>
+      action: () => T | Promise<T>,
     ): Promise<T | null> => {
       setActionError(null);
       const result = await ensureAuthenticated(reason, level);
       if (!result.ok) {
+        // Cancel is user intent; only surface actionable auth failures.
         if (result.code !== "CANCELLED") {
           setActionError(result.message);
         }
@@ -39,7 +40,7 @@ export function useProtectedTodoActions() {
 
       return action();
     },
-    [ensureAuthenticated]
+    [ensureAuthenticated],
   );
 
   const handleToggleTodo = useCallback(
@@ -49,10 +50,10 @@ export function useProtectedTodoActions() {
         AuthLevel.TRUSTED,
         () => {
           toggleTodo(id);
-        }
+        },
       );
     },
-    [runProtectedAction, toggleTodo]
+    [runProtectedAction, toggleTodo],
   );
 
   const handleSaveTitle = useCallback(
@@ -68,10 +69,10 @@ export function useProtectedTodoActions() {
             category: todo.category,
             priority: todo.priority,
           });
-        }
+        },
       );
     },
-    [runProtectedAction, updateTodo]
+    [runProtectedAction, updateTodo],
   );
 
   const handleDeleteTodo = useCallback(
@@ -81,10 +82,10 @@ export function useProtectedTodoActions() {
         AuthLevel.CRITICAL,
         () => {
           deleteTodo(id);
-        }
+        },
       );
     },
-    [deleteTodo, runProtectedAction]
+    [deleteTodo, runProtectedAction],
   );
 
   const handleDuplicateTodo = useCallback(
@@ -92,10 +93,10 @@ export function useProtectedTodoActions() {
       await runProtectedAction(
         "Authenticate to duplicate this todo",
         AuthLevel.TRUSTED,
-        () => duplicateTodo(id)
+        () => duplicateTodo(id),
       );
     },
-    [duplicateTodo, runProtectedAction]
+    [duplicateTodo, runProtectedAction],
   );
 
   const handleClearCompleted = useCallback(async () => {
@@ -106,9 +107,10 @@ export function useProtectedTodoActions() {
         AuthLevel.CRITICAL,
         () => {
           clearCompleted();
-        }
+        },
       );
     } finally {
+      // Always reset progress state even if auth/action throws.
       setIsClearingCompleted(false);
     }
   }, [clearCompleted, runProtectedAction]);

@@ -5,11 +5,12 @@ import { authStateAtom, lockAuthAtom, unlockAuthAtom } from "./_atoms/auth";
 
 import { authenticateLocal } from "./localAuth";
 import { isSessionValid, isSessionValidForLevel } from "./session";
-import { AuthLevel } from "./types";
 import type { AuthResult, AuthState } from "./types";
+import { AuthLevel } from "./types";
 
 export { isSessionValid, isSessionValidForLevel };
 
+// Module-level guard prevents overlapping biometric prompts from separate callers.
 let authInFlight = false;
 
 /**
@@ -25,7 +26,7 @@ export async function ensureAuthenticated(
   get: Getter,
   set: Setter,
   reason: string,
-  level: AuthLevel = AuthLevel.TRUSTED
+  level: AuthLevel = AuthLevel.TRUSTED,
 ): Promise<AuthResult> {
   if (authInFlight) {
     return {
@@ -38,6 +39,7 @@ export async function ensureAuthenticated(
   const state = get(authStateAtom);
   const nowMs = Date.now();
 
+  // Reuse a still-valid session for the requested risk level and skip prompting.
   if (isSessionValidForLevel(state.lastAuthenticatedAtMs, level, nowMs)) {
     set(authStateAtom, (prev: AuthState) => ({ ...prev, status: "unlocked" }));
     return { ok: true };

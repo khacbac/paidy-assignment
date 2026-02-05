@@ -36,6 +36,7 @@ function createTodoId(): string {
     return crypto.randomUUID();
   }
 
+  // Fallback for runtimes where randomUUID is unavailable (e.g. older JS engines).
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
@@ -155,6 +156,7 @@ export const duplicateTodoAtom = atom(null, (get, set, id: TodoId) => {
   };
 
   const nextTodos = [...todos];
+  // Insert the duplicate directly after the source to keep local context in the list.
   nextTodos.splice(sourceIndex + 1, 0, duplicatedTodo);
   set(todosAtom, nextTodos);
 
@@ -187,6 +189,7 @@ export const limitedTodosAtom = (filter: TodoFilter, limit: number) =>
     }
 
     const todos = get(filteredTodosAtom(filter));
+    // Clone before sorting to avoid mutating the array returned by the selector.
     return [...todos]
       .sort((a, b) => b.updatedAtMs - a.updatedAtMs)
       .slice(0, limit);
