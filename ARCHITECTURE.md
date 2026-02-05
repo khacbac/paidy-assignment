@@ -182,6 +182,9 @@ todoStorage.ts        // Todo-specific persistence
 interface Todo {
   id: string              // UUID
   title: string           // Todo text
+  description: string     // Optional details (stored as empty string if omitted)
+  category?: TodoCategory // none | work | personal | shopping | health | urgent
+  priority?: TodoPriority // none | low | medium | high
   createdAtMs: number     // Creation timestamp
   updatedAtMs: number     // Last update timestamp
   completed: boolean      // Completion status
@@ -215,7 +218,6 @@ UI Re-renders
 app/                    // File-based routing
 ├── _layout.tsx        // Root layout with auth
 ├── index.tsx          // Main TODO screen
-├── all-todos.tsx      // Full list view
 ├── settings.tsx       // Settings screen
 └── todo-actions.tsx   // Modal for CRUD
 ```
@@ -230,15 +232,12 @@ app/                    // File-based routing
 **Navigation Flow**:
 ```
 Main Screen (index)
-    ├─ Limited todo list (5 items)
-    ├─ "Show All" → all-todos.tsx
-    └─ Add Todo → Protected action
+    ├─ Filtered todo list (all / active / completed)
+    ├─ Todo tap → todo-actions.tsx (modal)
+    └─ Add Todo FAB → todo-actions.tsx (modal)
 
-Todo Item (swipe)
-    └─ Edit/Delete → todo-actions.tsx (modal)
-
-All Todos Screen
-    └─ Complete list with filters
+Settings (header action)
+    └─ Session diagnostics, lock, and clear-all-data
 ```
 
 ### 5. Component Architecture
@@ -372,10 +371,10 @@ function useProtectedTodoActions() {
 
 ### Optimizations Implemented
 
-1. **Limited Todos Display**
-   - Main screen shows only 5 todos
-   - "Show All" navigates to full list
-   - Reduces initial render time
+1. **Single-List Home UX**
+   - Main screen renders the full filtered list directly
+   - Removes duplicate all-todos route and related state hops
+   - Keeps interactions in one place with modal actions
 
 2. **Filtered Atoms**
    - Pre-computed filtered lists
@@ -402,7 +401,7 @@ function useProtectedTodoActions() {
 - **Feature-based code splitting** - Natural with features/
 - **Expo Router** - Automatic route-based splitting
 - **Jotai** - Tree-shakable state management
-- **NativeWind** - PurgeCSS for styles
+- **StyleSheet** - Static style objects with no runtime class parser
 
 ## Testing Strategy
 
@@ -480,8 +479,8 @@ src/features/[feature]/
    - Screen reader support
 
 4. **Styling**
-   - NativeWind (Tailwind CSS)
-   - Consistent patterns
+   - React Native StyleSheet + theme-aware color branches
+   - Consistent spacing/typography tokens
    - Dark mode support
 
 ### State Management Guidelines
@@ -525,7 +524,7 @@ src/features/[feature]/
 
 ### UI & Styling
 
-- **NativeWind** - Tailwind CSS for RN
+- **React Native StyleSheet** - Native style system
 - **react-native-reanimated** - Animations
 - **react-native-gesture-handler** - Gestures
 

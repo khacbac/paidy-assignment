@@ -29,7 +29,7 @@ This guide covers the development workflow, best practices, and common tasks for
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd secured-todo-list
+   cd paidy-assignment
    ```
 
 2. **Install dependencies**
@@ -68,11 +68,10 @@ This starts the Metro bundler. Use the Expo Dev Client to scan the QR code.
 ## Project Structure
 
 ```
-secured-todo-list/
+paidy-assignment/
 ├── app/                            # Expo Router screens
 │   ├── _layout.tsx                # Root layout with auth
 │   ├── index.tsx                  # Main TODO screen
-│   ├── all-todos.tsx             # Full list view
 │   ├── settings.tsx              # Settings
 │   └── todo-actions.tsx          # Modal for todo CRUD
 │
@@ -121,7 +120,7 @@ secured-todo-list/
 
 **`app/`** - Expo Router uses file-based routing. Each file becomes a route:
 - `index.tsx` → `/`
-- `all-todos.tsx` → `/all-todos`
+- `settings.tsx` → `/settings`
 - `todo-actions.tsx` → `/todo-actions` (modal)
 
 **`src/features/`** - Feature-based organization:
@@ -784,29 +783,23 @@ export const loadTodosAtom = atom(async (get) => {
 
 ### Styling Patterns
 
-**Use NativeWind (Tailwind)**:
+**Use StyleSheet with theme-aware variants**:
 ```typescript
 // ✅ Good
-<Text className="text-lg font-bold text-gray-900 dark:text-white" />
+const styles = StyleSheet.create({
+  title: { fontSize: 18, fontWeight: "700" },
+  titleLight: { color: "#171717" },
+  titleDark: { color: "#f5f5f5" },
+});
 
-// Variants with className
-type ButtonProps = {
-  variant?: 'primary' | 'secondary'
-}
-
-const variants = {
-  primary: 'bg-blue-500 text-white',
-  secondary: 'bg-gray-200 text-gray-900'
-}
+<Text style={[styles.title, isDark ? styles.titleDark : styles.titleLight]} />
 ```
 
 **Dark mode support**:
 ```typescript
 // ✅ Good
-<View className="bg-white dark:bg-gray-900">
-  <Text className="text-gray-900 dark:text-white">
-    Content
-  </Text>
+<View style={isDark ? styles.containerDark : styles.containerLight}>
+  <Text style={isDark ? styles.textDark : styles.textLight}>Content</Text>
 </View>
 ```
 
@@ -815,14 +808,14 @@ const variants = {
 // ✅ Good
 const buttonVariants = {
   primary: {
-    container: 'bg-blue-500',
-    text: 'text-white'
+    container: styles.primaryContainer,
+    text: styles.primaryText,
   },
   secondary: {
-    container: 'bg-gray-200',
-    text: 'text-gray-900'
-  }
-}
+    container: styles.secondaryContainer,
+    text: styles.secondaryText,
+  },
+};
 ```
 
 ### Error Handling
@@ -1208,7 +1201,7 @@ cd ..
 - [React Native Documentation](https://reactnative.dev/)
 - [Jotai Documentation](https://jotai.org/)
 - [TypeScript Documentation](https://www.typescriptlang.org/)
-- [NativeWind Documentation](https://www.nativewind.dev/)
+- [React Native StyleSheet](https://reactnative.dev/docs/stylesheet)
 
 ### Community
 

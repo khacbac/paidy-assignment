@@ -1,10 +1,10 @@
 # Secured TODO List
 
-A React Native + Expo TODO list application with biometric authentication. Users must authenticate via Face ID/Touch ID before performing CRUD operations on todos. Built with enterprise-grade security and modern React Native patterns.
+A React Native + Expo TODO list application with biometric authentication. Users must authenticate via Face ID/Touch ID before performing protected todo operations.
 
-![React Native](https://img.shields.io/badge/React%20Native-0.73-blue)
-![Expo](https://img.shields.io/badge/Expo-SDK%2050-1B1F24)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)
+![React Native](https://img.shields.io/badge/React%20Native-0.81-blue)
+![Expo](https://img.shields.io/badge/Expo-SDK%2054-1B1F24)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 ## 📱 Features
@@ -14,17 +14,19 @@ A React Native + Expo TODO list application with biometric authentication. Users
 - **⏱️ Session Management** - Auto-expiring sessions with configurable TTL
 - **💾 Secure Storage** - Sensitive data encrypted with SecureStore
 - **📱 Native Performance** - Built with React Native primitives
-- **🎨 Modern UI** - Dark mode support with NativeWind styling
+- **🎨 Modern UI** - Dark mode support with polished card and modal interactions
+- **🗂️ Rich Todo Metadata** - Description, category, and priority support
+- **🕒 Relative Timestamps** - Human-friendly "Updated x ago" labels
 - **🧪 Tested** - Comprehensive unit tests with Jest
 - **📦 Modular** - Feature-based architecture with Jotai state
 
 ## 🎯 Authentication Levels
 
-| Level | Grace Period | Example Operations |
-|-------|--------------|-------------------|
-| **TRUSTED** (5 min) | Low-risk actions | Toggle todo completion |
-| **SENSITIVE** (2 min) | Medium-risk actions | Add/update/duplicate todos |
-| **CRITICAL** (Always required) | High-risk actions | Delete todo, clear completed |
+| Level                          | Grace Period        | Example Operations           |
+| ------------------------------ | ------------------- | ---------------------------- |
+| **TRUSTED** (5 min)            | Low-risk actions    | Toggle todo completion       |
+| **SENSITIVE** (2 min)          | Medium-risk actions | Add/update/duplicate todos   |
+| **CRITICAL** (Always required) | High-risk actions   | Delete todo, clear completed |
 
 <div align="center">
   <img src="assets/demo.gif" alt="App Demo" width="300" />
@@ -43,13 +45,15 @@ A React Native + Expo TODO list application with biometric authentication. Users
 ### Quick Start
 
 1. **Clone and install**
+
    ```bash
    git clone <repository-url>
-   cd secured-todo-list
+   cd paidy-assignment
    pnpm install
    ```
 
 2. **Create development build** (required for biometrics)
+
    ```bash
    pnpm expo prebuild  # Generate native project files
    ```
@@ -62,6 +66,7 @@ A React Native + Expo TODO list application with biometric authentication. Users
    ```
 
 For development server only:
+
 ```bash
 pnpm start  # Start Metro bundler
 ```
@@ -77,12 +82,12 @@ pnpm start  # Start Metro bundler
 ## 🏗️ Project Structure
 
 ```
-secured-todo-list/
+paidy-assignment/
 ├── app/                       # Expo Router screens
-│   ├── _layout.tsx           # Root layout with auth overlay
-│   ├── index.tsx             # Main TODO screen
-│   ├── all-todos.tsx         # Full todo list
-│   └── todo-actions.tsx      # Modal for CRUD ops
+│   ├── _layout.tsx           # Root layout + header settings action
+│   ├── index.tsx             # Main TODO screen (full filtered list)
+│   ├── settings.tsx          # Session diagnostics + maintenance actions
+│   └── todo-actions.tsx      # Modal for create/edit/duplicate/delete
 │
 ├── src/
 │   ├── features/              # Feature modules
@@ -111,16 +116,16 @@ secured-todo-list/
 
 ## 🔧 Tech Stack
 
-| Category | Technology | Purpose |
-|----------|------------|---------|
-| **Framework** | React Native 0.73 + Expo 50 | Cross-platform mobile development |
-| **Navigation** | Expo Router 3 | File-based routing |
-| **State Mgmt** | Jotai 2.6 | Atomic state management |
-| **Styling** | NativeWind 4 | Tailwind CSS for RN |
-| **Auth** | expo-local-authentication | Biometric authentication |
-| **Storage** | expo-secure-store + @react-native-async-storage | Encrypted & async storage |
-| **Language** | TypeScript 5.3 | Type safety |
-| **Tests** | Jest + React Native Testing Library | Unit & integration tests |
+| Category       | Technology                                      | Purpose                           |
+| -------------- | ----------------------------------------------- | --------------------------------- |
+| **Framework**  | React Native 0.81 + Expo 54                     | Cross-platform mobile development |
+| **Navigation** | Expo Router 3                                   | File-based routing                |
+| **State Mgmt** | Jotai 2.6                                       | Atomic state management           |
+| **Styling**    | React Native StyleSheet                         | Native cross-platform styling     |
+| **Auth**       | expo-local-authentication                       | Biometric authentication          |
+| **Storage**    | expo-secure-store + @react-native-async-storage | Encrypted & async storage         |
+| **Language**   | TypeScript 5.9                                  | Type safety                       |
+| **Tests**      | Jest + React Native Testing Library             | Unit & integration tests          |
 
 ## 🎬 How It Works
 
@@ -182,6 +187,7 @@ pnpm test auth.test.ts # Run specific test file
 ```
 
 Tests are colocated with implementation:
+
 ```
 src/features/auth/
 ├── __tests__/
@@ -192,18 +198,18 @@ src/features/auth/
 
 ## 🚀 Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm start` | Start Expo dev server |
-| `pnpm ios` | Run iOS simulator |
-| `pnpm android` | Run Android emulator |
-| `pnpm lint` | Run ESLint |
-| `pnpm test` | Run Jest tests |
-| `pnpm test:watch` | Run tests in watch mode |
-| `pnpm expo prebuild` | Generate native project files |
-| `pnpm expo run:ios` | Build and run iOS |
-| `pnpm expo run:android` | Build and run Android |
-| `pnpm eas build` | Create production build |
+| Command                 | Description                   |
+| ----------------------- | ----------------------------- |
+| `pnpm start`            | Start Expo dev server         |
+| `pnpm ios`              | Run iOS simulator             |
+| `pnpm android`          | Run Android emulator          |
+| `pnpm lint`             | Run ESLint                    |
+| `pnpm test`             | Run Jest tests                |
+| `pnpm test:watch`       | Run tests in watch mode       |
+| `pnpm expo prebuild`    | Generate native project files |
+| `pnpm expo run:ios`     | Build and run iOS             |
+| `pnpm expo run:android` | Build and run Android         |
+| `pnpm eas build`        | Create production build       |
 
 ## 🤝 Contributing
 
@@ -218,13 +224,13 @@ src/features/auth/
 
 ## 📄 License
 
-MIT © [Your Name]
+MIT © KhacBac
 
 ## 🙏 Acknowledgments
 
 - [Expo](https://expo.dev/) for the amazing development platform
 - [Jotai](https://jotai.org/) team for the state management library
-- [NativeWind](https://www.nativewind.dev/) for styling utilities
+- [React Native StyleSheet](https://reactnative.dev/docs/stylesheet) for styling
 - All contributors and the open-source community
 
 ---
