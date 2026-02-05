@@ -27,17 +27,20 @@ This guide covers the development workflow, best practices, and common tasks for
 ### Initial Setup
 
 1. **Clone the repository**
+
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/khacbac/paidy-assignment.git
    cd paidy-assignment
    ```
 
 2. **Install dependencies**
+
    ```bash
    pnpm install
    ```
 
 3. **Create development build** (required for biometrics)
+
    ```bash
    # Generate native project files
    pnpm expo prebuild
@@ -47,6 +50,7 @@ This guide covers the development workflow, best practices, and common tasks for
    ```
 
 4. **Run the app**
+
    ```bash
    # iOS
    pnpm ios
@@ -119,22 +123,26 @@ paidy-assignment/
 ### Key Directories Explained
 
 **`app/`** - Expo Router uses file-based routing. Each file becomes a route:
+
 - `index.tsx` → `/`
 - `settings.tsx` → `/settings`
 - `todo-actions.tsx` → `/todo-actions` (modal)
 
 **`src/features/`** - Feature-based organization:
+
 - Each feature has its own directory
 - Colocated: atoms, components, types, tests
 - Clear boundaries between features
 - Example: `auth/` and `todos/` are completely separate
 
 **`src/lib/`** - Shared infrastructure:
+
 - Storage adapters
 - Jotai configuration
 - Utilities that cross feature boundaries
 
 **`src/components/`** - Reusable UI components:
+
 - Shared across features
 - No business logic
 - Focused on presentation
@@ -196,48 +204,49 @@ The app supports hot reloading for most changes:
 ### Adding a New Feature
 
 1. **Create feature directory**
+
    ```bash
    mkdir -p src/features/categories
    cd src/features/categories
    ```
 
 2. **Setup feature structure**
+
    ```bash
    mkdir _atoms components __tests__
    touch types.ts constants.ts index.ts
    ```
 
 3. **Define types** (`types.ts`)
+
    ```typescript
    export interface Category {
-     id: string
-     name: string
-     color: string
+     id: string;
+     name: string;
+     color: string;
    }
 
-   export type CategoryFilter = 'all' | Category['id']
+   export type CategoryFilter = "all" | Category["id"];
    ```
 
 4. **Create atoms** (`_atoms/categories.ts`)
+
    ```typescript
-   import { atom } from 'jotai'
-   import { atomWithAsyncStorage } from '@/lib/jotai/atomWithAsyncStorage'
-   import { Category } from '../types'
+   import { atom } from "jotai";
+   import { atomWithAsyncStorage } from "@/lib/jotai/atomWithAsyncStorage";
+   import { Category } from "../types";
 
    // Source of truth
    export const categoriesAtom = atomWithAsyncStorage<Category[]>(
-     'categories:v1',
-     []
-   )
+     "categories:v1",
+     [],
+   );
 
    // Actions
-   export const addCategoryAtom = atom(
-     null,
-     (get, set, category: Category) => {
-       const categories = get(categoriesAtom)
-       set(categoriesAtom, [...categories, category])
-     }
-   )
+   export const addCategoryAtom = atom(null, (get, set, category: Category) => {
+     const categories = get(categoriesAtom);
+     set(categoriesAtom, [...categories, category]);
+   });
    ```
 
 5. **Create components** (`components/`)
@@ -246,33 +255,35 @@ The app supports hot reloading for most changes:
    - Implement dark mode
 
 6. **Add protected actions if needed**
+
    ```typescript
    // In useProtectedCategoryActions.ts
-   import { useAuthGate } from '@/features/auth/authGate'
-   import { AuthLevel } from '@/features/auth/types'
+   import { useAuthGate } from "@/features/auth/authGate";
+   import { AuthLevel } from "@/features/auth/types";
 
    export function useProtectedCategoryActions() {
-     const ensureAuthenticated = useAuthGate()
+     const ensureAuthenticated = useAuthGate();
 
      const handleAddCategory = async (category: Category) => {
-       await ensureAuthenticated(AuthLevel.SENSITIVE)
+       await ensureAuthenticated(AuthLevel.SENSITIVE);
        // Add category...
-     }
+     };
 
-     return { handleAddCategory }
+     return { handleAddCategory };
    }
    ```
 
 7. **Write tests** (`__tests__/categories.test.ts`)
-   ```typescript
-   import { addCategoryAtom, categoriesAtom } from '../_atoms/categories'
-   import { Category } from '../types'
 
-   describe('categoriesAtom', () => {
-     it('should add category', () => {
+   ```typescript
+   import { addCategoryAtom, categoriesAtom } from "../_atoms/categories";
+   import { Category } from "../types";
+
+   describe("categoriesAtom", () => {
+     it("should add category", () => {
        // Test implementation
-     })
-   })
+     });
+   });
    ```
 
 ### Modifying Existing Features
@@ -280,24 +291,27 @@ The app supports hot reloading for most changes:
 #### Updating Authentication
 
 **File**: `src/features/auth/constants.ts`
+
 ```typescript
 // Change session durations
-export const TRUSTED_TTL = 5 * 60 * 1000  // 5 minutes
-export const SENSITIVE_TTL = 2 * 60 * 1000 // 2 minutes
+export const TRUSTED_TTL = 5 * 60 * 1000; // 5 minutes
+export const SENSITIVE_TTL = 2 * 60 * 1000; // 2 minutes
 ```
 
 **File**: `src/features/auth/types.ts`
+
 ```typescript
 // Add new auth level
 export enum AuthLevel {
-  TRUSTED = 'TRUSTED',
-  SENSITIVE = 'SENSITIVE',
-  CRITICAL = 'CRITICAL',
-  EXTREME = 'EXTREME',  // New level
+  TRUSTED = "TRUSTED",
+  SENSITIVE = "SENSITIVE",
+  CRITICAL = "CRITICAL",
+  EXTREME = "EXTREME", // New level
 }
 ```
 
 **Update all references**:
+
 - `smartAuth.ts` - Add TTL calculation
 - `authGate.ts` - Handle new level
 - `useProtectedTodoActions.ts` - Map actions to new level
@@ -305,48 +319,51 @@ export enum AuthLevel {
 #### Adding Todo Fields
 
 1. **Update type** (`src/features/todos/types.ts`)
+
    ```typescript
    export interface Todo {
-     id: string
-     title: string
-     completed: boolean
-     createdAtMs: number
-     updatedAtMs: number
-     priority: 'low' | 'medium' | 'high'  // New field
+     id: string;
+     title: string;
+     completed: boolean;
+     createdAtMs: number;
+     updatedAtMs: number;
+     priority: "low" | "medium" | "high"; // New field
    }
    ```
 
 2. **Update storage** (`src/features/todos/_atoms/todos.ts`)
+
    ```typescript
    // Update addTodoAtom to include priority
    export const addTodoAtom = atom(
      null,
-     (get, set, title: string, priority: Todo['priority'] = 'medium') => {
+     (get, set, title: string, priority: Todo["priority"] = "medium") => {
        const todo: Todo = {
          id: generateId(),
          title,
-         priority,  // Include in creation
+         priority, // Include in creation
          // ... other fields
-       }
-       set(todosAtom, [...get(todosAtom), todo])
-     }
-   )
+       };
+       set(todosAtom, [...get(todosAtom), todo]);
+     },
+   );
    ```
 
 3. **Migrate existing data** (`src/lib/storage/todoStorage.ts`)
+
    ```typescript
    // Add migration logic for existing todos without priority
    export async function getTodos(): Promise<Todo[]> {
-     const data = await asyncStorage.getItem(STORAGE_KEY)
-     if (!data) return []
+     const data = await asyncStorage.getItem(STORAGE_KEY);
+     if (!data) return [];
 
-     const todos = JSON.parse(data)
+     const todos = JSON.parse(data);
 
      // Migration: Add priority to old todos
-     return todos.map(todo => ({
+     return todos.map((todo) => ({
        ...todo,
-       priority: todo.priority || 'medium'  // Default value
-     }))
+       priority: todo.priority || "medium", // Default value
+     }));
    }
    ```
 
@@ -360,6 +377,7 @@ export enum AuthLevel {
 ### Test Structure
 
 Tests are colocated with implementation:
+
 ```
 src/features/auth/
 ├── __tests__/
@@ -373,31 +391,31 @@ src/features/auth/
 #### Testing Atoms
 
 ```typescript
-import { renderHook, act } from '@testing-library/react-hooks'
-import { useAtom } from 'jotai'
-import { todosAtom, addTodoAtom } from '../_atoms/todos'
+import { renderHook, act } from "@testing-library/react-hooks";
+import { useAtom } from "jotai";
+import { todosAtom, addTodoAtom } from "../_atoms/todos";
 
-describe('todosAtom', () => {
-  it('should initialize with empty array', () => {
-    const { result } = renderHook(() => useAtom(todosAtom))
-    expect(result.current[0]).toEqual([])
-  })
+describe("todosAtom", () => {
+  it("should initialize with empty array", () => {
+    const { result } = renderHook(() => useAtom(todosAtom));
+    expect(result.current[0]).toEqual([]);
+  });
 
-  it('should add todo', () => {
+  it("should add todo", () => {
     const { result } = renderHook(() => {
-      const [todos] = useAtom(todosAtom)
-      const [, addTodo] = useAtom(addTodoAtom)
-      return { todos, addTodo }
-    })
+      const [todos] = useAtom(todosAtom);
+      const [, addTodo] = useAtom(addTodoAtom);
+      return { todos, addTodo };
+    });
 
     act(() => {
-      result.current.addTodo('Test todo')
-    })
+      result.current.addTodo("Test todo");
+    });
 
-    expect(result.current.todos).toHaveLength(1)
-    expect(result.current.todos[0].title).toBe('Test todo')
-  })
-})
+    expect(result.current.todos).toHaveLength(1);
+    expect(result.current.todos[0].title).toBe("Test todo");
+  });
+});
 ```
 
 #### Testing Components
@@ -429,29 +447,29 @@ describe('AddTodoForm', () => {
 #### Testing Authentication
 
 ```typescript
-import { renderHook } from '@testing-library/react-hooks'
-import { useAuthGate } from '../authGate'
-import * as localAuth from '../localAuth'
+import { renderHook } from "@testing-library/react-hooks";
+import { useAuthGate } from "../authGate";
+import * as localAuth from "../localAuth";
 
-jest.mock('../localAuth')
+jest.mock("../localAuth");
 
-describe('useAuthGate', () => {
+describe("useAuthGate", () => {
   beforeEach(() => {
-    jest.clearAllMocks()
-  })
+    jest.clearAllMocks();
+  });
 
-  it('should authenticate when session expired', async () => {
-    const mockAuthenticate = jest.spyOn(localAuth, 'authenticateAsync')
-    mockAuthenticate.mockResolvedValue({ success: true })
+  it("should authenticate when session expired", async () => {
+    const mockAuthenticate = jest.spyOn(localAuth, "authenticateAsync");
+    mockAuthenticate.mockResolvedValue({ success: true });
 
-    const { result } = renderHook(() => useAuthGate())
+    const { result } = renderHook(() => useAuthGate());
 
-    const auth = await result.current(AuthLevel.CRITICAL)
+    const auth = await result.current(AuthLevel.CRITICAL);
 
-    expect(auth.success).toBe(true)
-    expect(mockAuthenticate).toHaveBeenCalled()
-  })
-})
+    expect(auth.success).toBe(true);
+    expect(mockAuthenticate).toHaveBeenCalled();
+  });
+});
 ```
 
 ### Running Tests
@@ -476,23 +494,25 @@ pnpm test --updateSnapshot
 ### Test Utilities
 
 **Mock Auth**:
+
 ```typescript
 // __mocks__/@/features/auth/authGate.ts
 export const mockAuthGate = {
-  ensureAuthenticated: jest.fn().mockResolvedValue({ success: true })
-}
+  ensureAuthenticated: jest.fn().mockResolvedValue({ success: true }),
+};
 
-export const useAuthGate = () => mockAuthGate.ensureAuthenticated
+export const useAuthGate = () => mockAuthGate.ensureAuthenticated;
 ```
 
 **Mock Storage**:
+
 ```typescript
 // In test setup
-jest.mock('@/lib/storage/async-storage', () => ({
+jest.mock("@/lib/storage/async-storage", () => ({
   getItem: jest.fn(),
   setItem: jest.fn(),
-  removeItem: jest.fn()
-}))
+  removeItem: jest.fn(),
+}));
 ```
 
 ## Debugging
@@ -500,12 +520,14 @@ jest.mock('@/lib/storage/async-storage', () => ({
 ### React Native Debugger
 
 1. **Chrome DevTools**
+
    ```bash
    # In simulator, press Cmd+D (iOS) or Cmd+M (Android)
    # Select "Debug"
    ```
 
 2. **React DevTools**
+
    ```bash
    # Install standalone React DevTools
    npm install -g react-devtools
@@ -524,16 +546,18 @@ jest.mock('@/lib/storage/async-storage', () => ({
 #### Auth Not Working
 
 - **Check biometric availability**
+
   ```typescript
-  import { isEnrolledAsync } from 'expo-local-authentication'
-  const enrolled = await isEnrolledAsync()
+  import { isEnrolledAsync } from "expo-local-authentication";
+  const enrolled = await isEnrolledAsync();
   ```
 
 - **Verify SecureStore access**
+
   ```typescript
-  import * as SecureStore from 'expo-secure-store'
-  await SecureStore.setItemAsync('test', 'value')
-  const value = await SecureStore.getItemAsync('test')
+  import * as SecureStore from "expo-secure-store";
+  await SecureStore.setItemAsync("test", "value");
+  const value = await SecureStore.getItemAsync("test");
   ```
 
 - **Check auth state**:
@@ -544,10 +568,11 @@ jest.mock('@/lib/storage/async-storage', () => ({
 #### State Not Persisting
 
 - **Verify AsyncStorage**
+
   ```typescript
-  import AsyncStorage from '@react-native-async-storage/async-storage'
-  await AsyncStorage.setItem('test', 'value')
-  const value = await AsyncStorage.getItem('test')
+  import AsyncStorage from "@react-native-async-storage/async-storage";
+  await AsyncStorage.setItem("test", "value");
+  const value = await AsyncStorage.getItem("test");
   ```
 
 - **Check atom configuration**
@@ -558,23 +583,25 @@ jest.mock('@/lib/storage/async-storage', () => ({
 - **Debug storage operations**
   ```typescript
   // Add logs to storage adapters
-  console.log('[Storage] Getting item:', key)
-  console.log('[Storage] Setting item:', key, value)
+  console.log("[Storage] Getting item:", key);
+  console.log("[Storage] Setting item:", key, value);
   ```
 
 #### Navigation Issues
 
 - **Clear navigation state**
+
   ```bash
   # In simulator, shake gesture
   # Select "Clear storage and refresh"
   ```
 
 - **Check route params**
+
   ```typescript
   // In component
-  const { params } = useLocalSearchParams()
-  console.log('Route params:', params)
+  const { params } = useLocalSearchParams();
+  console.log("Route params:", params);
   ```
 
 - **Verify modal configuration**
@@ -584,26 +611,29 @@ jest.mock('@/lib/storage/async-storage', () => ({
 ### Logging
 
 **Enable detailed logs**:
+
 ```typescript
 // In development
 if (__DEV__) {
   console.log = (...args) => {
-    global.console.log('[DEV]', ...args)
-  }
+    global.console.log("[DEV]", ...args);
+  };
 }
 ```
 
 **Log auth flow**:
+
 ```typescript
 // In authGate.ts
-console.log('[Auth] Checking session for level:', level)
-console.log('[Auth] Session valid:', isValid)
-console.log('[Auth] Auth result:', result)
+console.log("[Auth] Checking session for level:", level);
+console.log("[Auth] Session valid:", isValid);
+console.log("[Auth] Auth result:", result);
 ```
 
 ### Performance Debugging
 
 **Slow list rendering**:
+
 ```typescript
 // Use FlashList instead of FlatList
 import { FlashList } from '@shopify/flash-list'
@@ -617,22 +647,24 @@ getItemLayout={(data, index) => ({
 ```
 
 **Re-render issues**:
+
 ```typescript
 // Use React DevTools Profiler
 // Wrap with React.memo
 export const TodoItem = React.memo(({ todo, onToggle }) => {
   // Component
-})
+});
 ```
 
 **Storage performance**:
+
 ```typescript
 // Batch storage operations
 const operations = [
-  ['todos:v1', JSON.stringify(todos)],
-  ['lastSync', Date.now().toString()]
-]
-await AsyncStorage.multiSet(operations)
+  ["todos:v1", JSON.stringify(todos)],
+  ["lastSync", Date.now().toString()],
+];
+await AsyncStorage.multiSet(operations);
 ```
 
 ## Code Style
@@ -642,16 +674,17 @@ await AsyncStorage.multiSet(operations)
 **Use explicit types**:```typescript
 // ✅ Good
 interface Todo {
-  id: string
-  title: string
+id: string
+title: string
 }
 
 // ❌ Avoid
 const todo = {
-  id: '123',
-  title: 'Test'
+id: '123',
+title: 'Test'
 } // Implicit type
-```
+
+````
 
 **Prefer interfaces over types for objects**:
 ```typescript
@@ -663,18 +696,20 @@ interface User {
 
 // For unions, use type
 type Status = 'active' | 'inactive'
-```
+````
 
 **Use enum for auth levels**:
+
 ```typescript
 // ✅ Good
 export enum AuthLevel {
-  TRUSTED = 'TRUSTED',
-  SENSITIVE = 'SENSITIVE'
+  TRUSTED = "TRUSTED",
+  SENSITIVE = "SENSITIVE",
 }
 ```
 
 **Avoid any**:
+
 ```typescript
 // ✅ Good
 function process(data: unknown) {
@@ -692,10 +727,11 @@ function process(data: any) {
 ### React Patterns
 
 **Functional components with hooks**:
+
 ```typescript
 // ✅ Good
 export function TodoList() {
-  const [todos] = useAtom(todosAtom)
+  const [todos] = useAtom(todosAtom);
   // ...
 }
 
@@ -706,26 +742,29 @@ class TodoList extends React.Component {
 ```
 
 **Custom hooks for logic**:
+
 ```typescript
 // ✅ Good
 export function useProtectedTodoActions() {
-  const ensureAuthenticated = useAuthGate()
+  const ensureAuthenticated = useAuthGate();
   // Hook logic
 }
 
 // Use in component
-const { handleAddTodo } = useProtectedTodoActions()
+const { handleAddTodo } = useProtectedTodoActions();
 ```
 
 **Memoize expensive computations**:
+
 ```typescript
 // ✅ Good
 const filteredTodos = useMemo(() => {
-  return todos.filter(t => t.completed === filter)
-}, [todos, filter])
+  return todos.filter((t) => t.completed === filter);
+}, [todos, filter]);
 ```
 
 **Avoid inline functions in JSX**:
+
 ```typescript
 // ✅ Good
 const handlePress = useCallback(() => {
@@ -741,49 +780,52 @@ const handlePress = useCallback(() => {
 ### Jotai Patterns
 
 **Organize atoms by feature**:
+
 ```typescript
 // ✅ In src/features/todos/_atoms/todos.ts
-export const todosAtom = atom<Todo[]>([])
+export const todosAtom = atom<Todo[]>([]);
 export const addTodoAtom = atom(null, (get, set, todo) => {
-  set(todosAtom, [...get(todosAtom), todo])
-})
+  set(todosAtom, [...get(todosAtom), todo]);
+});
 ```
 
 **Use derived atoms for computed state**:
+
 ```typescript
 // ✅ Good
-export const todosCountAtom = atom((get) => get(todosAtom).length)
+export const todosCountAtom = atom((get) => get(todosAtom).length);
 export const activeTodosAtom = atom((get) =>
-  get(todosAtom).filter(t => !t.completed)
-)
+  get(todosAtom).filter((t) => !t.completed),
+);
 ```
 
 **Action atoms for updates**:
+
 ```typescript
 // ✅ Good
-export const toggleTodoAtom = atom(
-  null,
-  (get, set, id: string) => {
-    const todos = get(todosAtom)
-    set(todosAtom, todos.map(t =>
-      t.id === id ? { ...t, completed: !t.completed } : t
-    ))
-  }
-)
+export const toggleTodoAtom = atom(null, (get, set, id: string) => {
+  const todos = get(todosAtom);
+  set(
+    todosAtom,
+    todos.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t)),
+  );
+});
 ```
 
 **Async atoms for side effects**:
+
 ```typescript
 // ✅ Good
 export const loadTodosAtom = atom(async (get) => {
-  const todos = await todoStorage.getTodos()
-  return todos
-})
+  const todos = await todoStorage.getTodos();
+  return todos;
+});
 ```
 
 ### Styling Patterns
 
 **Use StyleSheet with theme-aware variants**:
+
 ```typescript
 // ✅ Good
 const styles = StyleSheet.create({
@@ -796,6 +838,7 @@ const styles = StyleSheet.create({
 ```
 
 **Dark mode support**:
+
 ```typescript
 // ✅ Good
 <View style={isDark ? styles.containerDark : styles.containerLight}>
@@ -804,6 +847,7 @@ const styles = StyleSheet.create({
 ```
 
 **Extract component variants**:
+
 ```typescript
 // ✅ Good
 const buttonVariants = {
@@ -821,51 +865,55 @@ const buttonVariants = {
 ### Error Handling
 
 **Handle errors explicitly**:
+
 ```typescript
 // ✅ Good
 try {
-  const result = await authenticateAsync()
+  const result = await authenticateAsync();
   if (!result.success) {
-    throw new Error('Authentication failed')
+    throw new Error("Authentication failed");
   }
-  return result
+  return result;
 } catch (error) {
-  console.error('Auth error:', error)
-  throw new Error('Unable to authenticate')
+  console.error("Auth error:", error);
+  throw new Error("Unable to authenticate");
 }
 ```
 
 **Typed errors**:
+
 ```typescript
 // ✅ Good
 interface AuthError {
-  code: string
-  message: string
+  code: string;
+  message: string;
 }
 
 function isAuthError(error: unknown): error is AuthError {
-  return typeof error === 'object' && error !== null && 'code' in error
+  return typeof error === "object" && error !== null && "code" in error;
 }
 ```
 
 **Graceful degradation**:
+
 ```typescript
 // ✅ Good
 const handleAction = async () => {
   try {
-    await protectedAction()
+    await protectedAction();
   } catch (error) {
     // Show user-friendly message
-    setError('Unable to complete action. Please try again.')
+    setError("Unable to complete action. Please try again.");
     // Log for debugging
-    console.error('Action failed:', error)
+    console.error("Action failed:", error);
   }
-}
+};
 ```
 
 ### Naming Conventions
 
 **Files**: `kebab-case.ts`
+
 ```
 auth-gate.ts
 todo-item.tsx
@@ -873,31 +921,36 @@ use-protected-actions.ts
 ```
 
 **Components**: `PascalCase`
+
 ```typescript
 export function TodoItem() {}
 export class AuthError {}
 ```
 
 **Functions**: `camelCase`
+
 ```typescript
 function ensureAuthenticated() {}
-const handlePress = () => {}
+const handlePress = () => {};
 ```
 
 **Constants**: `UPPER_SNAKE_CASE`
+
 ```typescript
-export const TRUSTED_TTL = 5 * 60 * 1000
-export const STORAGE_KEY = 'todos:v1'
+export const TRUSTED_TTL = 5 * 60 * 1000;
+export const STORAGE_KEY = "todos:v1";
 ```
 
 **Types**: `PascalCase`
+
 ```typescript
-type TodoStatus = 'active' | 'completed'
+type TodoStatus = "active" | "completed";
 interface UserProfile {}
 enum AuthLevel {}
 ```
 
 **Hooks**: `useCamelCase`
+
 ```typescript
 function useAuthGate() {}
 function useProtectedTodoActions() {}
@@ -913,6 +966,7 @@ touch src/components/Card.tsx
 ```
 
 **Component template**:
+
 ```typescript
 import { View, Text } from 'react-native'
 import { cn } from '@/lib/utils' // If you have cn utility
@@ -940,11 +994,13 @@ export function Card({ title, children, className }: CardProps) {
 ### Adding a New Screen
 
 1. **Create screen file**:
+
    ```bash
    touch app/analytics.tsx
    ```
 
 2. **Basic structure**:
+
    ```typescript
    import { View, Text } from 'react-native'
    import { Stack } from 'expo-router'
@@ -964,6 +1020,7 @@ export function Card({ title, children, className }: CardProps) {
    ```
 
 3. **Add navigation link**:
+
    ```typescript
    // In parent screen
    import { Link } from 'expo-router'
@@ -989,6 +1046,7 @@ pnpm add -D @types/new-package
 ```
 
 **After updating**:
+
 1. Check for breaking changes
 2. Update code if needed
 3. Run tests
@@ -998,27 +1056,30 @@ pnpm add -D @types/new-package
 ### Debugging Storage
 
 **Read AsyncStorage**:
+
 ```typescript
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // Read all keys
-const keys = await AsyncStorage.getAllKeys()
-console.log('Keys:', keys)
+const keys = await AsyncStorage.getAllKeys();
+console.log("Keys:", keys);
 
 // Read specific key
-const todos = await AsyncStorage.getItem('todos:v1')
-console.log('Todos:', JSON.parse(todos || '[]'))
+const todos = await AsyncStorage.getItem("todos:v1");
+console.log("Todos:", JSON.parse(todos || "[]"));
 ```
 
 **Read SecureStore**:
-```typescript
-import * as SecureStore from 'expo-secure-store'
 
-const lastAuth = await SecureStore.getItemAsync('lastTrustedAuth')
-console.log('Last auth:', new Date(parseInt(lastAuth || '0')))
+```typescript
+import * as SecureStore from "expo-secure-store";
+
+const lastAuth = await SecureStore.getItemAsync("lastTrustedAuth");
+console.log("Last auth:", new Date(parseInt(lastAuth || "0")));
 ```
 
 **Clear all data**:
+
 ```bash
 # In simulator, shake gesture
 # Select "Clear storage and refresh"
@@ -1027,12 +1088,14 @@ console.log('Last auth:', new Date(parseInt(lastAuth || '0')))
 ### Releasing a New Version
 
 1. **Update version**:
+
    ```bash
    # Update package.json
    npm version patch  # or minor/major
    ```
 
 2. **Update app.json**:
+
    ```json
    {
      "expo": {
@@ -1048,6 +1111,7 @@ console.log('Last auth:', new Date(parseInt(lastAuth || '0')))
    ```
 
 3. **Build production**:
+
    ```bash
    # iOS
    pnpm eas build --platform ios --profile production
@@ -1057,6 +1121,7 @@ console.log('Last auth:', new Date(parseInt(lastAuth || '0')))
    ```
 
 4. **Submit to stores**:
+
    ```bash
    # iOS App Store
    pnpm eas submit --platform ios
@@ -1074,6 +1139,7 @@ console.log('Last auth:', new Date(parseInt(lastAuth || '0')))
 **Error**: `expo-local-authentication` not available in Expo Go
 
 **Solution**:
+
 ```bash
 # Create development build
 pnpm expo prebuild
@@ -1086,51 +1152,57 @@ pnpm eas build --profile development --platform ios
 #### Auth not prompting
 
 **Check biometric enrollment**:
-```typescript
-import { isEnrolledAsync } from 'expo-local-authentication'
 
-const enrolled = await isEnrolledAsync()
+```typescript
+import { isEnrolledAsync } from "expo-local-authentication";
+
+const enrolled = await isEnrolledAsync();
 if (!enrolled) {
-  Alert.alert('Please enroll biometrics in device settings')
+  Alert.alert("Please enroll biometrics in device settings");
 }
 ```
 
 **Check permissions**:
+
 - iOS: `Info.plist` should have `NSFaceIDUsageDescription`
 - Android: Should request biometrics permission
 
 #### State not updating
 
 **Check atom updates**:
+
 ```typescript
 // Verify atom is updating
-const [todos, setTodos] = useAtom(todosAtom)
-console.log('Todos before:', todos)
-setTodos([...todos, newTodo])
-console.log('Todos after:', todos)
+const [todos, setTodos] = useAtom(todosAtom);
+console.log("Todos before:", todos);
+setTodos([...todos, newTodo]);
+console.log("Todos after:", todos);
 ```
 
 **Check component re-rendering**:
+
 ```typescript
-console.log('Component render')
+console.log("Component render");
 // Should log on each state change
 ```
 
 #### Storage errors
 
 **SecureStore not available**:
+
 ```typescript
 // Some Android devices don't support SecureStore
 // Check availability first
-import * as SecureStore from 'expo-secure-store'
+import * as SecureStore from "expo-secure-store";
 
-const isAvailable = await SecureStore.isAvailableAsync()
+const isAvailable = await SecureStore.isAvailableAsync();
 if (!isAvailable) {
   // Fallback to AsyncStorage with encryption
 }
 ```
 
 **AsyncStorage full**:
+
 - Check storage limits (6MB on Android)
 - Remove old data
 - Compress stored data
@@ -1146,17 +1218,20 @@ if (!isAvailable) {
 ### Performance Issues
 
 **Slow startup**:
+
 - Check bundle size: `pnpm expo export`
 - Analyze dependencies with `pnpm why <package>`
 - Remove unused dependencies
 - Enable Hermes: `expo.jsEngine: 'hermes'`
 
 **List performance**:
+
 - Use `getItemLayout` in FlatList
 - Implement windowing with `FlashList`
 - Reduce re-renders with `React.memo`
 
 **Storage performance**:
+
 - Batch operations with `multiGet`/`multiSet`
 - Compress large data
 - Use pagination for large lists
@@ -1164,6 +1239,7 @@ if (!isAvailable) {
 ### Environment Issues
 
 **Node modules cache**:
+
 ```bash
 # Clear cache
 pnpm store prune
@@ -1173,11 +1249,13 @@ pnpm install
 ```
 
 **Metro cache**:
+
 ```bash
 pnpm start --clear
 ```
 
 **iOS build cache**:
+
 ```bash
 cd ios
 rm -rf build
@@ -1187,6 +1265,7 @@ cd ..
 ```
 
 **Android build cache**:
+
 ```bash
 cd android
 ./gradlew clean

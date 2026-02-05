@@ -47,7 +47,7 @@ A React Native + Expo TODO list application with biometric authentication. Users
 1. **Clone and install**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/khacbac/paidy-assignment.git
    cd paidy-assignment
    pnpm install
    ```
