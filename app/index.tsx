@@ -8,15 +8,12 @@ import {
   activeTodosCountAtom,
   completedTodosCountAtom,
   filteredTodosAtom,
-  limitedTodosAtom,
   todosCountAtom,
 } from "@/features/todos/_atoms/todos";
 import { TodoFilters } from "@/features/todos/components/TodoFilters";
 import { TodoList } from "@/features/todos/components/TodoList";
 import type { TodoFilter } from "@/features/todos/types";
 import { useProtectedTodoActions } from "@/features/todos/useProtectedTodoActions";
-
-const TODO_LIMIT = 5;
 
 function getEmptyState(filter: TodoFilter): {
   title: string;
@@ -51,17 +48,11 @@ export default function TodosScreen() {
     () => filteredTodosAtom(filter),
     [filter],
   );
-  const visibleTodosAtom = useMemo(
-    () => limitedTodosAtom(filter, TODO_LIMIT),
-    [filter],
-  );
 
   const allFilteredTodos = useAtomValue(allFilteredTodosAtom);
-  const visibleTodos = useAtomValue(visibleTodosAtom);
   const todosCount = useAtomValue(todosCountAtom);
   const activeTodosCount = useAtomValue(activeTodosCountAtom);
   const completedTodosCount = useAtomValue(completedTodosCountAtom);
-  const hasHiddenTodos = allFilteredTodos.length > visibleTodos.length;
 
   const {
     actionError,
@@ -119,21 +110,12 @@ export default function TodosScreen() {
             </Link>
           </View>
 
-          {hasHiddenTodos ? (
-            <View style={styles.flexOne}>
-              <Link href="/all-todos" asChild>
-                <Button variant="secondary" accessibilityLabel="Show all todos">
-                  All
-                </Button>
-              </Link>
-            </View>
-          ) : null}
         </View>
       </View>
 
       <View style={styles.listContainer}>
         <TodoList
-          todos={visibleTodos}
+          todos={allFilteredTodos}
           onToggle={(id) => {
             void handleToggleTodo(id);
           }}
