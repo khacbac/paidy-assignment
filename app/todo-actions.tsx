@@ -38,7 +38,7 @@ export default function TodoActionsScreen() {
   useEffect(() => {
     setDraftTitle(todo?.title ?? "");
     setErrorMessage(null);
-  }, [todo?.id, todo?.title]);
+  }, [todo?.title]);
 
   const handleClose = useCallback(async () => {
     await HapticPatterns.LIGHT();
@@ -109,30 +109,41 @@ export default function TodoActionsScreen() {
     }
 
     await HapticPatterns.WARNING();
-    Alert.alert("Delete todo?", `This will permanently delete "${todo.title}".`, [
-      {
-        text: "Cancel",
-        style: "cancel",
-      },
-      {
-        text: "Delete",
-        style: "destructive",
-        onPress: () => {
-          void (async () => {
-            await HapticPatterns.HEAVY();
-            await handleDeleteTodo(todo.id);
-            router.back();
-          })();
+    Alert.alert(
+      "Delete todo?",
+      `This will permanently delete "${todo.title}".`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
         },
-      },
-    ]);
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            void (async () => {
+              await HapticPatterns.HEAVY();
+              await handleDeleteTodo(todo.id);
+              router.back();
+            })();
+          },
+        },
+      ],
+    );
   }, [handleDeleteTodo, router, todo]);
 
   if (!todo) {
     return (
-      <View style={[styles.screen, isDark ? styles.screenDark : styles.screenLight]}>
+      <View
+        style={[styles.screen, isDark ? styles.screenDark : styles.screenLight]}
+      >
         <View style={styles.headerRow}>
-          <Text style={[styles.headerTitle, isDark ? styles.titleDark : styles.titleLight]}>
+          <Text
+            style={[
+              styles.headerTitle,
+              isDark ? styles.titleDark : styles.titleLight,
+            ]}
+          >
             Todo Actions
           </Text>
           <Button
@@ -145,7 +156,12 @@ export default function TodoActionsScreen() {
             Close
           </Button>
         </View>
-        <Text style={[styles.message, isDark ? styles.messageDark : styles.messageLight]}>
+        <Text
+          style={[
+            styles.message,
+            isDark ? styles.messageDark : styles.messageLight,
+          ]}
+        >
           Todo not found.
         </Text>
       </View>
@@ -153,13 +169,25 @@ export default function TodoActionsScreen() {
   }
 
   return (
-    <View style={[styles.screen, isDark ? styles.screenDark : styles.screenLight]}>
+    <View
+      style={[styles.screen, isDark ? styles.screenDark : styles.screenLight]}
+    >
       <View style={styles.headerRow}>
         <View>
-          <Text style={[styles.kicker, isDark ? styles.kickerDark : styles.kickerLight]}>
+          <Text
+            style={[
+              styles.kicker,
+              isDark ? styles.kickerDark : styles.kickerLight,
+            ]}
+          >
             {isEditing ? "Edit Todo" : "Todo Actions"}
           </Text>
-          <Text style={[styles.headerTitle, isDark ? styles.titleDark : styles.titleLight]}>
+          <Text
+            style={[
+              styles.headerTitle,
+              isDark ? styles.titleDark : styles.titleLight,
+            ]}
+          >
             {isEditing ? "Update the title below." : todo.title}
           </Text>
         </View>
@@ -176,7 +204,9 @@ export default function TodoActionsScreen() {
       </View>
 
       {actionError ? (
-        <Text style={[styles.error, isDark ? styles.errorDark : styles.errorLight]}>
+        <Text
+          style={[styles.error, isDark ? styles.errorDark : styles.errorLight]}
+        >
           {actionError}
         </Text>
       ) : null}
