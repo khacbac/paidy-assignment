@@ -53,6 +53,14 @@ function AppContent() {
       <Stack.Screen name="index" options={{ title: "Todo List" }} />
       <Stack.Screen name="all-todos" options={{ title: "All Todos" }} />
       <Stack.Screen name="settings" options={{ title: "Settings" }} />
+      <Stack.Screen
+        name="todo-actions"
+        options={{
+          presentation: "modal",
+          animation: "slide_from_bottom",
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }

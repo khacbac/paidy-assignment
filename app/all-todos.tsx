@@ -53,9 +53,6 @@ export default function AllTodosScreen() {
     actionError,
     isClearingCompleted,
     handleToggleTodo,
-    handleSaveTitle,
-    handleDeleteTodo,
-    handleDuplicateTodo,
     handleClearCompleted,
   } = useProtectedTodoActions();
 
@@ -148,15 +145,6 @@ export default function AllTodosScreen() {
           todos={visibleTodos}
           onToggle={(id) => {
             void handleToggleTodo(id);
-          }}
-          onSaveTitle={(todo) => {
-            void handleSaveTitle(todo);
-          }}
-          onDelete={(id) => {
-            void handleDeleteTodo(id);
-          }}
-          onDuplicate={(id) => {
-            void handleDuplicateTodo(id);
           }}
           emptyTitle={emptyState.title}
           emptyDescription={emptyState.description}

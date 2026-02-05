@@ -8,9 +8,6 @@ import { SwipeableTodoItem } from "./SwipeableTodoItem";
 type TodoListProps = {
   todos: Todo[];
   onToggle: (id: string) => void;
-  onSaveTitle: (todo: Todo) => void;
-  onDelete: (id: string) => void;
-  onDuplicate: (id: string) => void;
   emptyTitle: string;
   emptyDescription: string;
   onEmptyAction?: () => void;
@@ -20,9 +17,6 @@ type TodoListProps = {
 export function TodoList({
   todos,
   onToggle,
-  onSaveTitle,
-  onDelete,
-  onDuplicate,
   emptyTitle,
   emptyDescription,
   onEmptyAction,
@@ -43,13 +37,7 @@ export function TodoList({
         />
       }
       renderItem={({ item }) => (
-        <SwipeableTodoItem
-          todo={item}
-          onToggle={onToggle}
-          onSaveTitle={onSaveTitle}
-          onDelete={onDelete}
-          onDuplicate={onDuplicate}
-        />
+        <SwipeableTodoItem todo={item} onToggle={onToggle} />
       )}
     />
   );
