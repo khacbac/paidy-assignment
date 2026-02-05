@@ -1,14 +1,14 @@
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   ActivityIndicator,
   Pressable,
+  type PressableProps,
+  type PressableStateCallbackType,
+  type StyleProp,
   StyleSheet,
   Text,
   useColorScheme,
-  type PressableStateCallbackType,
-  type StyleProp,
   type ViewStyle,
-  type PressableProps,
 } from "react-native";
 
 type ButtonVariant = "primary" | "secondary" | "danger" | "outline";
@@ -33,12 +33,16 @@ export function Button({
   const containerStyle: StyleProp<ViewStyle> = [
     styles.container,
     variant === "primary" && styles.primaryContainer,
-    variant === "secondary" && (isDark ? styles.secondaryContainerDark : styles.secondaryContainer),
+    variant === "secondary" &&
+      (isDark ? styles.secondaryContainerDark : styles.secondaryContainer),
     variant === "danger" && styles.dangerContainer,
-    variant === "outline" && (isDark ? styles.outlineContainerDark : styles.outlineContainer),
+    variant === "outline" &&
+      (isDark ? styles.outlineContainerDark : styles.outlineContainer),
     isDisabled && styles.disabled,
   ];
-  const pressableStyle: PressableProps["style"] = (state: PressableStateCallbackType) => {
+  const pressableStyle: PressableProps["style"] = (
+    state: PressableStateCallbackType,
+  ) => {
     if (typeof style === "function") {
       return [
         containerStyle,
@@ -47,22 +51,30 @@ export function Button({
       ];
     }
 
-    return [containerStyle, !isDisabled && state.pressed && styles.pressed, style];
+    return [
+      containerStyle,
+      !isDisabled && state.pressed && styles.pressed,
+      style,
+    ];
   };
 
   const textStyle = [
     styles.text,
     variant === "primary" && styles.primaryText,
-    variant === "secondary" && (isDark ? styles.secondaryTextDark : styles.secondaryText),
+    variant === "secondary" &&
+      (isDark ? styles.secondaryTextDark : styles.secondaryText),
     variant === "danger" && styles.dangerText,
-    variant === "outline" && (isDark ? styles.outlineTextDark : styles.outlineText),
+    variant === "outline" &&
+      (isDark ? styles.outlineTextDark : styles.outlineText),
   ];
 
   return (
     <Pressable style={pressableStyle} disabled={isDisabled} {...rest}>
       {loading ? (
         <ActivityIndicator
-          color={variant === "outline" ? (isDark ? "#f5f5f5" : "#171717") : "#ffffff"}
+          color={
+            variant === "outline" ? (isDark ? "#f5f5f5" : "#171717") : "#ffffff"
+          }
           size="small"
         />
       ) : (
