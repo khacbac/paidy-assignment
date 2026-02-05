@@ -7,8 +7,14 @@ import {
 } from "react-native";
 
 import { formatTimestamp } from "@/features/todos/formatTimestamp";
+import {
+  getTodoCategoryEmoji,
+  TODO_CARD_SHADOW_STYLES,
+} from "@/features/todos/constants";
 import type { Todo } from "@/features/todos/types";
 import { HapticPatterns } from "@/utils/haptics";
+
+import { PriorityDot } from "./PriorityDot";
 
 interface TodoItemDisplayProps {
   todo: Todo;
@@ -26,11 +32,13 @@ export function TodoItemDisplay({
   onOpenActions,
 }: TodoItemDisplayProps) {
   const isDark = useColorScheme() === "dark";
+  const categoryEmoji = getTodoCategoryEmoji(todo.category);
 
   return (
     <Pressable
       style={[
         styles.container,
+        isDark ? TODO_CARD_SHADOW_STYLES.dark : TODO_CARD_SHADOW_STYLES.light,
         isDark ? styles.containerDark : styles.containerLight,
       ]}
       onPress={async () => {
@@ -68,20 +76,23 @@ export function TodoItemDisplay({
         </Pressable>
 
         <View style={styles.titleWrapper}>
-          <Text
-            style={[
-              styles.title,
-              todo.completed
-                ? styles.titleCompleted
-                : isDark
-                ? styles.titleDark
-                : styles.titleLight,
-            ]}
-            numberOfLines={2}
-            accessibilityLabel={`Open actions for ${todo.title}`}
-          >
-            {todo.title}
-          </Text>
+          <View style={styles.titleRow}>
+            <PriorityDot priority={todo.priority} />
+            <Text
+              style={[
+                styles.title,
+                todo.completed
+                  ? styles.titleCompleted
+                  : isDark
+                  ? styles.titleDark
+                  : styles.titleLight,
+              ]}
+              numberOfLines={2}
+              accessibilityLabel={`Open actions for ${todo.title}`}
+            >
+              {`${categoryEmoji ? `${categoryEmoji} ` : ""}${todo.title}`}
+            </Text>
+          </View>
           {todo.description ? (
             <Text
               style={[
@@ -134,7 +145,6 @@ export function TodoItemDisplay({
 
 const styles = StyleSheet.create({
   container: {
-    overflow: "hidden",
     borderRadius: 16,
     borderWidth: 1,
   },
@@ -187,7 +197,13 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 6,
   },
+  titleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   title: {
+    flex: 1,
     fontSize: 18,
     fontWeight: "500",
   },

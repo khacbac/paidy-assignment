@@ -65,6 +65,8 @@ export function useProtectedTodoActions() {
             id: todo.id,
             title: todo.title,
             description: todo.description,
+            category: todo.category,
+            priority: todo.priority,
           });
         }
       );

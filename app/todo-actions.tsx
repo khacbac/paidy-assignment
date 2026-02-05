@@ -7,7 +7,13 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { AuthLevel } from "@/features/auth/types";
 import { addTodoAtom, todosAtom } from "@/features/todos/_atoms/todos";
+import { CategoryPriorityPicker } from "@/features/todos/components/CategoryPriorityPicker";
 import { useProtectedTodoActions } from "@/features/todos/useProtectedTodoActions";
+import {
+  isTodoCategory,
+  isTodoPriority,
+} from "@/features/todos/constants";
+import type { TodoCategory, TodoPriority } from "@/features/todos/types";
 import { HapticPatterns } from "@/utils/haptics";
 
 export default function TodoActionsScreen() {
@@ -37,6 +43,8 @@ export default function TodoActionsScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState("");
   const [draftDescription, setDraftDescription] = useState("");
+  const [draftCategory, setDraftCategory] = useState<TodoCategory>("none");
+  const [draftPriority, setDraftPriority] = useState<TodoPriority>("none");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -53,6 +61,8 @@ export default function TodoActionsScreen() {
     if (todo) {
       setDraftTitle(todo.title);
       setDraftDescription(todo.description);
+      setDraftCategory(isTodoCategory(todo.category) ? todo.category : "none");
+      setDraftPriority(isTodoPriority(todo.priority) ? todo.priority : "none");
       setErrorMessage(null);
       return;
     }
@@ -60,6 +70,8 @@ export default function TodoActionsScreen() {
     if (isCreateMode) {
       setDraftTitle("");
       setDraftDescription("");
+      setDraftCategory("none");
+      setDraftPriority("none");
       setErrorMessage(null);
     }
   }, [isCreateMode, todo]);
@@ -88,6 +100,8 @@ export default function TodoActionsScreen() {
           addTodo({
             title: trimmedTitle,
             description: trimmedDescription,
+            category: draftCategory,
+            priority: draftPriority,
           });
         },
       );
@@ -102,7 +116,15 @@ export default function TodoActionsScreen() {
     } finally {
       setIsSaving(false);
     }
-  }, [addTodo, closeScreen, draftDescription, draftTitle, runProtectedAction]);
+  }, [
+    addTodo,
+    closeScreen,
+    draftCategory,
+    draftDescription,
+    draftPriority,
+    draftTitle,
+    runProtectedAction,
+  ]);
 
   const handleEdit = useCallback(async () => {
     if (!todo) {
@@ -112,6 +134,8 @@ export default function TodoActionsScreen() {
     await HapticPatterns.MEDIUM();
     setDraftTitle(todo.title);
     setDraftDescription(todo.description);
+    setDraftCategory(isTodoCategory(todo.category) ? todo.category : "none");
+    setDraftPriority(isTodoPriority(todo.priority) ? todo.priority : "none");
     setErrorMessage(null);
     setIsEditing(true);
   }, [todo]);
@@ -124,6 +148,8 @@ export default function TodoActionsScreen() {
     await HapticPatterns.LIGHT();
     setDraftTitle(todo.title);
     setDraftDescription(todo.description);
+    setDraftCategory(isTodoCategory(todo.category) ? todo.category : "none");
+    setDraftPriority(isTodoPriority(todo.priority) ? todo.priority : "none");
     setErrorMessage(null);
     setIsEditing(false);
   }, [todo]);
@@ -158,6 +184,8 @@ export default function TodoActionsScreen() {
         ...todo,
         title: trimmedTitle,
         description: trimmedDescription,
+        category: draftCategory,
+        priority: draftPriority,
       });
       await HapticPatterns.SUCCESS();
       closeScreen();
@@ -167,7 +195,15 @@ export default function TodoActionsScreen() {
     } finally {
       setIsSaving(false);
     }
-  }, [closeScreen, draftDescription, draftTitle, handleSaveTitle, todo]);
+  }, [
+    closeScreen,
+    draftCategory,
+    draftDescription,
+    draftPriority,
+    draftTitle,
+    handleSaveTitle,
+    todo,
+  ]);
 
   const handleDelete = useCallback(async () => {
     if (!todo) {
@@ -269,6 +305,12 @@ export default function TodoActionsScreen() {
             numberOfLines={4}
             style={styles.descriptionInput}
             accessibilityLabel="Todo description"
+          />
+          <CategoryPriorityPicker
+            category={draftCategory}
+            priority={draftPriority}
+            onChangeCategory={setDraftCategory}
+            onChangePriority={setDraftPriority}
           />
 
           <View style={styles.buttonRow}>
@@ -433,6 +475,12 @@ export default function TodoActionsScreen() {
               numberOfLines={4}
               style={styles.descriptionInput}
               accessibilityLabel={`Edit description for ${todo.title}`}
+            />
+            <CategoryPriorityPicker
+              category={draftCategory}
+              priority={draftPriority}
+              onChangeCategory={setDraftCategory}
+              onChangePriority={setDraftPriority}
             />
 
             <View style={styles.buttonRow}>

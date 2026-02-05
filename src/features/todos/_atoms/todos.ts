@@ -2,12 +2,21 @@ import { atomWithAsyncStorage } from "@/lib/jotai";
 import { TODOS_KEY } from "@/lib/storage";
 import { atom } from "jotai";
 
-import type { Todo, TodoFilter, TodoId } from "../types";
+import { isTodoCategory, isTodoPriority } from "../constants";
+import type {
+  Todo,
+  TodoCategory,
+  TodoFilter,
+  TodoId,
+  TodoPriority,
+} from "../types";
 
 export type UpdateTodoPayload = {
   id: TodoId;
   title: string;
   description?: string;
+  category?: TodoCategory;
+  priority?: TodoPriority;
 };
 
 export type AddTodoPayload =
@@ -15,6 +24,8 @@ export type AddTodoPayload =
   | {
       title: string;
       description?: string;
+      category?: TodoCategory;
+      priority?: TodoPriority;
     };
 
 function createTodoId(): string {
@@ -32,16 +43,26 @@ export const todosAtom = atomWithAsyncStorage<Todo[]>(TODOS_KEY, []);
 
 export const todosCountAtom = atom((get) => get(todosAtom).length);
 export const activeTodosCountAtom = atom(
-  (get) => get(todosAtom).filter((todo) => !todo.completed).length
+  (get) => get(todosAtom).filter((todo) => !todo.completed).length,
 );
 export const completedTodosCountAtom = atom(
-  (get) => get(todosAtom).filter((todo) => todo.completed).length
+  (get) => get(todosAtom).filter((todo) => todo.completed).length,
 );
 
 export const addTodoAtom = atom(null, (get, set, payload: AddTodoPayload) => {
-  const nextTitle = (typeof payload === "string" ? payload : payload.title).trim();
+  const nextTitle = (
+    typeof payload === "string" ? payload : payload.title
+  ).trim();
   const nextDescription =
     typeof payload === "string" ? "" : (payload.description ?? "").trim();
+  const category =
+    typeof payload === "string" || !isTodoCategory(payload.category)
+      ? "none"
+      : payload.category;
+  const priority =
+    typeof payload === "string" || !isTodoPriority(payload.priority)
+      ? "none"
+      : payload.priority;
   if (nextTitle.length === 0) {
     return;
   }
@@ -51,6 +72,8 @@ export const addTodoAtom = atom(null, (get, set, payload: AddTodoPayload) => {
     id: createTodoId(),
     title: nextTitle,
     description: nextDescription,
+    category,
+    priority,
     createdAtMs: nowMs,
     updatedAtMs: nowMs,
     completed: false,
@@ -66,8 +89,8 @@ export const toggleTodoAtom = atom(null, (get, set, id: TodoId) => {
     get(todosAtom).map((todo) =>
       todo.id === id
         ? { ...todo, completed: !todo.completed, updatedAtMs: nowMs }
-        : todo
-    )
+        : todo,
+    ),
   );
 });
 
@@ -89,18 +112,24 @@ export const updateTodoAtom = atom(
               ...todo,
               title: nextTitle,
               description: nextDescription,
+              category: isTodoCategory(payload.category)
+                ? payload.category
+                : (todo.category ?? "none"),
+              priority: isTodoPriority(payload.priority)
+                ? payload.priority
+                : (todo.priority ?? "none"),
               updatedAtMs: nowMs,
             }
-          : todo
-      )
+          : todo,
+      ),
     );
-  }
+  },
 );
 
 export const deleteTodoAtom = atom(null, (get, set, id: TodoId) => {
   set(
     todosAtom,
-    get(todosAtom).filter((todo) => todo.id !== id)
+    get(todosAtom).filter((todo) => todo.id !== id),
   );
 });
 
@@ -135,7 +164,7 @@ export const duplicateTodoAtom = atom(null, (get, set, id: TodoId) => {
 export const clearCompletedAtom = atom(null, (get, set) => {
   set(
     todosAtom,
-    get(todosAtom).filter((todo) => !todo.completed)
+    get(todosAtom).filter((todo) => !todo.completed),
   );
 });
 

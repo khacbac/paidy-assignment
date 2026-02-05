@@ -30,6 +30,8 @@ describe("todoStorage", () => {
         id: "todo-1",
         title: "Read",
         description: "",
+        category: "none",
+        priority: "none",
         createdAtMs: 1,
         updatedAtMs: 1,
         completed: false,
@@ -47,6 +49,8 @@ describe("todoStorage", () => {
         id: "todo-1",
         title: "Write tests",
         description: "",
+        category: "none",
+        priority: "none",
         createdAtMs: 1,
         updatedAtMs: 1,
         completed: true,
@@ -77,6 +81,8 @@ describe("todoStorage", () => {
       {
         ...legacyTodos[0],
         description: "",
+        category: "none",
+        priority: "none",
       },
     ]);
     expect(mockedSetItem).toHaveBeenCalledWith(
@@ -85,6 +91,8 @@ describe("todoStorage", () => {
         {
           ...legacyTodos[0],
           description: "",
+          category: "none",
+          priority: "none",
         },
       ])
     );

@@ -34,6 +34,8 @@ describe("todos atoms", () => {
     const todos = store.get(todosAtom);
     expect(todos).toHaveLength(1);
     expect(todos[0]?.title).toBe("Plan trip");
+    expect(todos[0]?.category).toBe("none");
+    expect(todos[0]?.priority).toBe("none");
 
     await Promise.resolve();
     expect(mockedSetItem).toHaveBeenCalledWith(

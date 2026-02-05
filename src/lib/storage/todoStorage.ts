@@ -1,4 +1,8 @@
 import type { Todo } from "@/features/todos/types";
+import {
+  isTodoCategory,
+  isTodoPriority,
+} from "@/features/todos/constants";
 import { getItem, removeItem, setItem } from "./async-storage";
 
 export const TODOS_KEY = "todos:v1";
@@ -29,6 +33,8 @@ function normalizeTodo(value: unknown): Todo | null {
     id: todo.id,
     title: todo.title,
     description: typeof todo.description === "string" ? todo.description : "",
+    category: isTodoCategory(todo.category) ? todo.category : "none",
+    priority: isTodoPriority(todo.priority) ? todo.priority : "none",
     createdAtMs: todo.createdAtMs,
     updatedAtMs: todo.updatedAtMs,
     completed: todo.completed,
