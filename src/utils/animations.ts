@@ -1,4 +1,4 @@
-import { withTiming, withSpring, withSequence } from "react-native-reanimated";
+import { withSpring, withTiming } from "react-native-reanimated";
 
 /**
  * Animation durations in milliseconds
@@ -18,11 +18,17 @@ export const AnimationDurations = {
 export const AnimationEasing = {
   easeOut: (value: number) => {
     "worklet";
-    return withTiming(value, { duration: AnimationDurations.NORMAL, easing: (t) => t * (2 - t) });
+    return withTiming(value, {
+      duration: AnimationDurations.NORMAL,
+      easing: (t) => t * (2 - t),
+    });
   },
   easeInOut: (value: number) => {
     "worklet";
-    return withTiming(value, { duration: AnimationDurations.NORMAL, easing: (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t });
+    return withTiming(value, {
+      duration: AnimationDurations.NORMAL,
+      easing: (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t),
+    });
   },
 } as const;
 
