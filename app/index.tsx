@@ -1,12 +1,15 @@
 import { Link } from "expo-router";
 import { useAtomValue, useSetAtom } from "jotai";
 import { useMemo, useState } from "react";
-import { StyleSheet, Text, View, useColorScheme } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
 
 import { Button } from "@/components/Button";
-import { AddTodoForm } from "@/features/todos/components/AddTodoForm";
-import { TodoFilters } from "@/features/todos/components/TodoFilters";
-import { TodoList } from "@/features/todos/components/TodoList";
 import { AuthLevel } from "@/features/auth/types";
 import {
   activeTodosCountAtom,
@@ -16,8 +19,11 @@ import {
   limitedTodosAtom,
   todosCountAtom,
 } from "@/features/todos/_atoms/todos";
-import { useProtectedTodoActions } from "@/features/todos/useProtectedTodoActions";
+import { AddTodoForm } from "@/features/todos/components/AddTodoForm";
+import { TodoFilters } from "@/features/todos/components/TodoFilters";
+import { TodoList } from "@/features/todos/components/TodoList";
 import type { TodoFilter } from "@/features/todos/types";
+import { useProtectedTodoActions } from "@/features/todos/useProtectedTodoActions";
 
 const TODO_LIMIT = 5;
 
@@ -52,8 +58,14 @@ export default function TodosScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isDark = useColorScheme() === "dark";
 
-  const allFilteredTodosAtom = useMemo(() => filteredTodosAtom(filter), [filter]);
-  const visibleTodosAtom = useMemo(() => limitedTodosAtom(filter, TODO_LIMIT), [filter]);
+  const allFilteredTodosAtom = useMemo(
+    () => filteredTodosAtom(filter),
+    [filter],
+  );
+  const visibleTodosAtom = useMemo(
+    () => limitedTodosAtom(filter, TODO_LIMIT),
+    [filter],
+  );
   const allFilteredTodos = useAtomValue(allFilteredTodosAtom);
   const visibleTodos = useAtomValue(visibleTodosAtom);
   const todosCount = useAtomValue(todosCountAtom);
@@ -85,7 +97,7 @@ export default function TodosScreen() {
         AuthLevel.SENSITIVE,
         () => {
           addTodo(nextTitle);
-        }
+        },
       );
       if (result !== null) {
         setNewTitle("");
@@ -98,11 +110,27 @@ export default function TodosScreen() {
   const emptyState = getEmptyState(filter);
 
   return (
-    <View style={[styles.screen, isDark ? styles.screenDark : styles.screenLight]}>
+    <ScrollView
+      style={[styles.screen, isDark ? styles.screenDark : styles.screenLight]}
+      contentContainerStyle={styles.screenContent}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={styles.topSection}>
         <View>
-          <Text style={[styles.heading, isDark ? styles.headingDark : styles.headingLight]}>Todos</Text>
-          <Text style={[styles.subheading, isDark ? styles.subheadingDark : styles.subheadingLight]}>
+          <Text
+            style={[
+              styles.heading,
+              isDark ? styles.headingDark : styles.headingLight,
+            ]}
+          >
+            Todos
+          </Text>
+          <Text
+            style={[
+              styles.subheading,
+              isDark ? styles.subheadingDark : styles.subheadingLight,
+            ]}
+          >
             Protected actions require local authentication.
           </Text>
         </View>
@@ -127,7 +155,12 @@ export default function TodosScreen() {
         />
 
         {actionError ? (
-          <Text style={[styles.errorText, isDark ? styles.errorTextDark : styles.errorTextLight]}>
+          <Text
+            style={[
+              styles.errorText,
+              isDark ? styles.errorTextDark : styles.errorTextLight,
+            ]}
+          >
             {actionError}
           </Text>
         ) : null}
@@ -141,7 +174,12 @@ export default function TodosScreen() {
         />
 
         {allFilteredTodos.length > 0 ? (
-          <Text style={[styles.countText, isDark ? styles.countTextDark : styles.countTextLight]}>
+          <Text
+            style={[
+              styles.countText,
+              isDark ? styles.countTextDark : styles.countTextLight,
+            ]}
+          >
             Showing {visibleTodos.length} of {allFilteredTodos.length} todos
           </Text>
         ) : null}
@@ -163,7 +201,10 @@ export default function TodosScreen() {
 
           <View style={styles.flexOne}>
             <Link href="/settings" asChild>
-              <Button variant="secondary" accessibilityLabel="Open settings screen">
+              <Button
+                variant="secondary"
+                accessibilityLabel="Open settings screen"
+              >
                 Settings
               </Button>
             </Link>
@@ -184,6 +225,7 @@ export default function TodosScreen() {
       <View style={styles.listContainer}>
         <TodoList
           todos={visibleTodos}
+          scrollEnabled={false}
           onToggle={(id) => {
             void handleToggleTodo(id);
           }}
@@ -199,16 +241,19 @@ export default function TodosScreen() {
           }
         />
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
+    paddingHorizontal: 16,
+  },
+  screenContent: {
+    flexGrow: 1,
     paddingTop: 20,
     paddingBottom: 16,
-    paddingHorizontal: 16,
   },
   screenLight: {
     backgroundColor: "#f5f5f5",
@@ -266,6 +311,5 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     marginTop: 16,
-    flex: 1,
   },
 });

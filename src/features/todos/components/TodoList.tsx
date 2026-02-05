@@ -12,6 +12,7 @@ type TodoListProps = {
   emptyDescription: string;
   onEmptyAction?: () => void;
   emptyActionLabel?: string;
+  scrollEnabled?: boolean;
 };
 
 export function TodoList({
@@ -21,11 +22,13 @@ export function TodoList({
   emptyDescription,
   onEmptyAction,
   emptyActionLabel,
+  scrollEnabled = true,
 }: TodoListProps) {
   return (
     <FlatList
       data={todos}
       keyExtractor={(item) => item.id}
+      scrollEnabled={scrollEnabled}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ gap: 10, paddingBottom: 16, flexGrow: 1 }}
       ListEmptyComponent={
