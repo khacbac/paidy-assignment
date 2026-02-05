@@ -1,4 +1,5 @@
-import { FlatList } from "react-native";
+import type { StyleProp, ViewStyle } from "react-native";
+import { FlatList, StyleSheet } from "react-native";
 
 import { EmptyState } from "@/components/EmptyState";
 import type { Todo } from "@/features/todos/types";
@@ -13,6 +14,7 @@ type TodoListProps = {
   onEmptyAction?: () => void;
   emptyActionLabel?: string;
   scrollEnabled?: boolean;
+  contentContainerStyle?: StyleProp<ViewStyle>;
 };
 
 export function TodoList({
@@ -23,6 +25,7 @@ export function TodoList({
   onEmptyAction,
   emptyActionLabel,
   scrollEnabled = true,
+  contentContainerStyle,
 }: TodoListProps) {
   return (
     <FlatList
@@ -30,7 +33,10 @@ export function TodoList({
       keyExtractor={(item) => item.id}
       scrollEnabled={scrollEnabled}
       keyboardShouldPersistTaps="handled"
-      contentContainerStyle={{ gap: 10, paddingBottom: 16, flexGrow: 1 }}
+      contentContainerStyle={[
+        styles.contentContainer,
+        contentContainerStyle,
+      ]}
       ListEmptyComponent={
         <EmptyState
           title={emptyTitle}
@@ -45,3 +51,11 @@ export function TodoList({
     />
   );
 }
+
+const styles = StyleSheet.create({
+  contentContainer: {
+    gap: 10,
+    paddingBottom: 16,
+    flexGrow: 1,
+  },
+});

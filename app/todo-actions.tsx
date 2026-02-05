@@ -1,11 +1,12 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Alert, StyleSheet, Text, useColorScheme, View } from "react-native";
 
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
-import { todosAtom } from "@/features/todos/_atoms/todos";
+import { AuthLevel } from "@/features/auth/types";
+import { addTodoAtom, todosAtom } from "@/features/todos/_atoms/todos";
 import { useProtectedTodoActions } from "@/features/todos/useProtectedTodoActions";
 import { HapticPatterns } from "@/utils/haptics";
 
@@ -13,8 +14,10 @@ export default function TodoActionsScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const router = useRouter();
   const todos = useAtomValue(todosAtom);
+  const addTodo = useSetAtom(addTodoAtom);
   const isDark = useColorScheme() === "dark";
 
+  const isCreateMode = !id;
   const todo = useMemo(() => {
     if (!id) {
       return null;
@@ -25,29 +28,81 @@ export default function TodoActionsScreen() {
 
   const {
     actionError,
+    runProtectedAction,
     handleSaveTitle,
     handleDeleteTodo,
     handleDuplicateTodo,
   } = useProtectedTodoActions();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [draftTitle, setDraftTitle] = useState(todo?.title ?? "");
-  const [draftDescription, setDraftDescription] = useState(
-    todo?.description ?? "",
-  );
+  const [draftTitle, setDraftTitle] = useState("");
+  const [draftDescription, setDraftDescription] = useState("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  const closeScreen = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+
+    router.replace("/");
+  }, [router]);
+
   useEffect(() => {
-    setDraftTitle(todo?.title ?? "");
-    setDraftDescription(todo?.description ?? "");
-    setErrorMessage(null);
-  }, [todo?.description, todo?.title]);
+    if (todo) {
+      setDraftTitle(todo.title);
+      setDraftDescription(todo.description);
+      setErrorMessage(null);
+      return;
+    }
+
+    if (isCreateMode) {
+      setDraftTitle("");
+      setDraftDescription("");
+      setErrorMessage(null);
+    }
+  }, [isCreateMode, todo]);
 
   const handleClose = useCallback(async () => {
     await HapticPatterns.LIGHT();
-    router.back();
-  }, [router]);
+    closeScreen();
+  }, [closeScreen]);
+
+  const handleCreate = useCallback(async () => {
+    const trimmedTitle = draftTitle.trim();
+    const trimmedDescription = draftDescription.trim();
+    if (trimmedTitle.length === 0) {
+      setErrorMessage("Please enter a todo title.");
+      await HapticPatterns.ERROR();
+      return;
+    }
+
+    setErrorMessage(null);
+    setIsSaving(true);
+    try {
+      const result = await runProtectedAction(
+        "Authenticate to add a todo",
+        AuthLevel.SENSITIVE,
+        () => {
+          addTodo({
+            title: trimmedTitle,
+            description: trimmedDescription,
+          });
+        },
+      );
+
+      if (result !== null) {
+        await HapticPatterns.SUCCESS();
+        closeScreen();
+      }
+    } catch (error) {
+      await HapticPatterns.ERROR();
+      console.error("Failed to create todo:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [addTodo, closeScreen, draftDescription, draftTitle, runProtectedAction]);
 
   const handleEdit = useCallback(async () => {
     if (!todo) {
@@ -80,8 +135,8 @@ export default function TodoActionsScreen() {
 
     await HapticPatterns.MEDIUM();
     await handleDuplicateTodo(todo.id);
-    router.back();
-  }, [handleDuplicateTodo, router, todo]);
+    closeScreen();
+  }, [closeScreen, handleDuplicateTodo, todo]);
 
   const handleSave = useCallback(async () => {
     if (!todo) {
@@ -105,14 +160,14 @@ export default function TodoActionsScreen() {
         description: trimmedDescription,
       });
       await HapticPatterns.SUCCESS();
-      router.back();
+      closeScreen();
     } catch (error) {
       await HapticPatterns.ERROR();
       console.error("Failed to save todo:", error);
     } finally {
       setIsSaving(false);
     }
-  }, [draftDescription, draftTitle, handleSaveTitle, router, todo]);
+  }, [closeScreen, draftDescription, draftTitle, handleSaveTitle, todo]);
 
   const handleDelete = useCallback(async () => {
     if (!todo) {
@@ -135,13 +190,116 @@ export default function TodoActionsScreen() {
             void (async () => {
               await HapticPatterns.HEAVY();
               await handleDeleteTodo(todo.id);
-              router.back();
+              closeScreen();
             })();
           },
         },
       ],
     );
-  }, [handleDeleteTodo, router, todo]);
+  }, [closeScreen, handleDeleteTodo, todo]);
+
+  if (isCreateMode) {
+    return (
+      <View
+        style={[styles.screen, isDark ? styles.screenDark : styles.screenLight]}
+      >
+        <View style={styles.headerRow}>
+          <View>
+            <Text
+              style={[
+                styles.kicker,
+                isDark ? styles.kickerDark : styles.kickerLight,
+              ]}
+            >
+              New Todo
+            </Text>
+            <Text
+              style={[
+                styles.headerTitle,
+                isDark ? styles.titleDark : styles.titleLight,
+              ]}
+            >
+              Add what needs doing
+            </Text>
+          </View>
+          <Button
+            variant="outline"
+            onPress={() => {
+              void handleClose();
+            }}
+            accessibilityLabel="Close todo editor"
+          >
+            Close
+          </Button>
+        </View>
+
+        {actionError ? (
+          <Text
+            style={[
+              styles.error,
+              isDark ? styles.errorDark : styles.errorLight,
+            ]}
+          >
+            {actionError}
+          </Text>
+        ) : null}
+
+        <View style={styles.actions}>
+          <Input
+            label="Todo title"
+            value={draftTitle}
+            onChangeText={(value) => {
+              setDraftTitle(value);
+              if (errorMessage) {
+                setErrorMessage(null);
+              }
+            }}
+            onSubmitEditing={() => {
+              void handleCreate();
+            }}
+            autoFocus
+            errorMessage={errorMessage ?? undefined}
+            accessibilityLabel="Todo title"
+          />
+          <Input
+            label="Description (optional)"
+            value={draftDescription}
+            onChangeText={setDraftDescription}
+            multiline
+            numberOfLines={4}
+            style={styles.descriptionInput}
+            accessibilityLabel="Todo description"
+          />
+
+          <View style={styles.buttonRow}>
+            <View style={styles.flexOne}>
+              <Button
+                variant="primary"
+                onPress={() => {
+                  void handleCreate();
+                }}
+                loading={isSaving}
+                accessibilityLabel="Create todo"
+              >
+                Add Todo
+              </Button>
+            </View>
+            <View style={styles.flexOne}>
+              <Button
+                variant="outline"
+                onPress={() => {
+                  void handleClose();
+                }}
+                accessibilityLabel="Cancel adding todo"
+              >
+                Cancel
+              </Button>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  }
 
   if (!todo) {
     return (

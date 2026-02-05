@@ -1,25 +1,16 @@
-import { Link } from "expo-router";
-import { useAtomValue, useSetAtom } from "jotai";
+import { Link, useRouter } from "expo-router";
+import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from "react-native";
+import { Pressable, StyleSheet, Text, useColorScheme, View } from "react-native";
 
 import { Button } from "@/components/Button";
-import { AuthLevel } from "@/features/auth/types";
 import {
   activeTodosCountAtom,
-  addTodoAtom,
   completedTodosCountAtom,
   filteredTodosAtom,
   limitedTodosAtom,
   todosCountAtom,
 } from "@/features/todos/_atoms/todos";
-import { AddTodoForm } from "@/features/todos/components/AddTodoForm";
 import { TodoFilters } from "@/features/todos/components/TodoFilters";
 import { TodoList } from "@/features/todos/components/TodoList";
 import type { TodoFilter } from "@/features/todos/types";
@@ -47,16 +38,13 @@ function getEmptyState(filter: TodoFilter): {
 
   return {
     title: "No todos yet",
-    description: "Add one task to get started.",
+    description: "Tap + to add your first todo.",
   };
 }
 
 export default function TodosScreen() {
   const [filter, setFilter] = useState<TodoFilter>("all");
-  const [newTitle, setNewTitle] = useState("");
-  const [newDescription, setNewDescription] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   const isDark = useColorScheme() === "dark";
 
   const allFilteredTodosAtom = useMemo(
@@ -67,6 +55,7 @@ export default function TodosScreen() {
     () => limitedTodosAtom(filter, TODO_LIMIT),
     [filter],
   );
+
   const allFilteredTodos = useAtomValue(allFilteredTodosAtom);
   const visibleTodos = useAtomValue(visibleTodosAtom);
   const todosCount = useAtomValue(todosCountAtom);
@@ -74,89 +63,26 @@ export default function TodosScreen() {
   const completedTodosCount = useAtomValue(completedTodosCountAtom);
   const hasHiddenTodos = allFilteredTodos.length > visibleTodos.length;
 
-  const addTodo = useSetAtom(addTodoAtom);
   const {
     actionError,
     isClearingCompleted,
-    runProtectedAction,
     handleToggleTodo,
     handleClearCompleted,
   } = useProtectedTodoActions();
 
-  const handleAddTodo = async () => {
-    const nextTitle = newTitle.trim();
-    if (nextTitle.length === 0) {
-      setFormError("Please enter a todo title.");
-      return;
-    }
-
-    setFormError(null);
-    setIsSubmitting(true);
-    try {
-      const result = await runProtectedAction(
-        "Authenticate to add a todo",
-        AuthLevel.SENSITIVE,
-        () => {
-          addTodo({ title: nextTitle, description: newDescription });
-        },
-      );
-      if (result !== null) {
-        setNewTitle("");
-        setNewDescription("");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const emptyState = getEmptyState(filter);
 
   return (
-    <ScrollView
+    <View
       style={[styles.screen, isDark ? styles.screenDark : styles.screenLight]}
-      contentContainerStyle={styles.screenContent}
-      keyboardShouldPersistTaps="handled"
     >
       <View style={styles.topSection}>
-        <View>
-          <Text
-            style={[
-              styles.heading,
-              isDark ? styles.headingDark : styles.headingLight,
-            ]}
-          >
-            Todos
-          </Text>
-          <Text
-            style={[
-              styles.subheading,
-              isDark ? styles.subheadingDark : styles.subheadingLight,
-            ]}
-          >
-            Protected actions require local authentication.
-          </Text>
-        </View>
-
-        <AddTodoForm
-          titleValue={newTitle}
-          descriptionValue={newDescription}
-          onChangeTitleText={(value) => {
-            setNewTitle(value);
-            if (formError) {
-              setFormError(null);
-            }
-          }}
-          onChangeDescriptionText={setNewDescription}
-          onSubmit={() => {
-            void handleAddTodo();
-          }}
-          onClear={() => {
-            setNewTitle("");
-            setNewDescription("");
-            setFormError(null);
-          }}
-          isSubmitting={isSubmitting}
-          errorMessage={formError}
+        <TodoFilters
+          selectedFilter={filter}
+          totalCount={todosCount}
+          activeCount={activeTodosCount}
+          completedCount={completedTodosCount}
+          onChangeFilter={setFilter}
         />
 
         {actionError ? (
@@ -167,25 +93,6 @@ export default function TodosScreen() {
             ]}
           >
             {actionError}
-          </Text>
-        ) : null}
-
-        <TodoFilters
-          selectedFilter={filter}
-          totalCount={todosCount}
-          activeCount={activeTodosCount}
-          completedCount={completedTodosCount}
-          onChangeFilter={setFilter}
-        />
-
-        {allFilteredTodos.length > 0 ? (
-          <Text
-            style={[
-              styles.countText,
-              isDark ? styles.countTextDark : styles.countTextLight,
-            ]}
-          >
-            Showing {visibleTodos.length} of {allFilteredTodos.length} todos
           </Text>
         ) : null}
 
@@ -206,10 +113,7 @@ export default function TodosScreen() {
 
           <View style={styles.flexOne}>
             <Link href="/settings" asChild>
-              <Button
-                variant="secondary"
-                accessibilityLabel="Open settings screen"
-              >
+              <Button variant="secondary" accessibilityLabel="Open settings">
                 Settings
               </Button>
             </Link>
@@ -230,7 +134,6 @@ export default function TodosScreen() {
       <View style={styles.listContainer}>
         <TodoList
           todos={visibleTodos}
-          scrollEnabled={false}
           onToggle={(id) => {
             void handleToggleTodo(id);
           }}
@@ -244,9 +147,24 @@ export default function TodosScreen() {
                   setFilter("all");
                 }
           }
+          contentContainerStyle={styles.listContentContainer}
         />
       </View>
-    </ScrollView>
+
+      <Pressable
+        style={[
+          styles.fab,
+          isDark ? styles.fabDark : styles.fabLight,
+        ]}
+        onPress={() => {
+          router.push("/todo-actions");
+        }}
+        accessibilityRole="button"
+        accessibilityLabel="Add todo"
+      >
+        <Text style={styles.fabLabel}>+</Text>
+      </Pressable>
+    </View>
   );
 }
 
@@ -254,11 +172,7 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
     paddingHorizontal: 16,
-  },
-  screenContent: {
-    flexGrow: 1,
-    paddingTop: 20,
-    paddingBottom: 16,
+    paddingTop: 12,
   },
   screenLight: {
     backgroundColor: "#f5f5f5",
@@ -267,27 +181,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#0a0a0a",
   },
   topSection: {
-    gap: 16,
+    gap: 12,
   },
-  heading: {
-    fontSize: 30,
-    fontWeight: "700",
+  actionRow: {
+    flexDirection: "row",
+    gap: 8,
   },
-  headingLight: {
-    color: "#171717",
-  },
-  headingDark: {
-    color: "#f5f5f5",
-  },
-  subheading: {
-    marginTop: 4,
-    fontSize: 14,
-  },
-  subheadingLight: {
-    color: "#525252",
-  },
-  subheadingDark: {
-    color: "#d4d4d4",
+  flexOne: {
+    flex: 1,
   },
   errorText: {
     fontSize: 14,
@@ -298,23 +199,42 @@ const styles = StyleSheet.create({
   errorTextDark: {
     color: "#f87171",
   },
-  actionRow: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  countText: {
-    fontSize: 14,
-  },
-  countTextLight: {
-    color: "#525252",
-  },
-  countTextDark: {
-    color: "#d4d4d4",
-  },
-  flexOne: {
-    flex: 1,
-  },
   listContainer: {
-    marginTop: 16,
+    flex: 1,
+    marginTop: 12,
+  },
+  listContentContainer: {
+    paddingBottom: 92,
+  },
+  fab: {
+    position: "absolute",
+    right: 16,
+    bottom: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 3,
+    shadowColor: "#000000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  fabLight: {
+    backgroundColor: "#2563eb",
+  },
+  fabDark: {
+    backgroundColor: "#3b82f6",
+  },
+  fabLabel: {
+    fontSize: 30,
+    lineHeight: 32,
+    color: "#ffffff",
+    fontWeight: "300",
+    marginTop: -2,
   },
 });
