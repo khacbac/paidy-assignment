@@ -6,6 +6,7 @@ describe("TodoItem", () => {
   const todo = {
     id: "todo-1",
     title: "Buy milk",
+    description: "",
     createdAtMs: 1_700_000_000_000,
     updatedAtMs: 1_700_000_000_000,
     completed: false,

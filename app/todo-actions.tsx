@@ -32,13 +32,17 @@ export default function TodoActionsScreen() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [draftTitle, setDraftTitle] = useState(todo?.title ?? "");
+  const [draftDescription, setDraftDescription] = useState(
+    todo?.description ?? "",
+  );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     setDraftTitle(todo?.title ?? "");
+    setDraftDescription(todo?.description ?? "");
     setErrorMessage(null);
-  }, [todo?.title]);
+  }, [todo?.description, todo?.title]);
 
   const handleClose = useCallback(async () => {
     await HapticPatterns.LIGHT();
@@ -52,6 +56,7 @@ export default function TodoActionsScreen() {
 
     await HapticPatterns.MEDIUM();
     setDraftTitle(todo.title);
+    setDraftDescription(todo.description);
     setErrorMessage(null);
     setIsEditing(true);
   }, [todo]);
@@ -63,6 +68,7 @@ export default function TodoActionsScreen() {
 
     await HapticPatterns.LIGHT();
     setDraftTitle(todo.title);
+    setDraftDescription(todo.description);
     setErrorMessage(null);
     setIsEditing(false);
   }, [todo]);
@@ -83,6 +89,7 @@ export default function TodoActionsScreen() {
     }
 
     const trimmedTitle = draftTitle.trim();
+    const trimmedDescription = draftDescription.trim();
     if (trimmedTitle.length === 0) {
       setErrorMessage("Please enter a todo title.");
       await HapticPatterns.ERROR();
@@ -92,7 +99,11 @@ export default function TodoActionsScreen() {
     setErrorMessage(null);
     setIsSaving(true);
     try {
-      await handleSaveTitle({ ...todo, title: trimmedTitle });
+      await handleSaveTitle({
+        ...todo,
+        title: trimmedTitle,
+        description: trimmedDescription,
+      });
       await HapticPatterns.SUCCESS();
       router.back();
     } catch (error) {
@@ -101,7 +112,7 @@ export default function TodoActionsScreen() {
     } finally {
       setIsSaving(false);
     }
-  }, [draftTitle, handleSaveTitle, router, todo]);
+  }, [draftDescription, draftTitle, handleSaveTitle, router, todo]);
 
   const handleDelete = useCallback(async () => {
     if (!todo) {
@@ -203,6 +214,32 @@ export default function TodoActionsScreen() {
         </Button>
       </View>
 
+      <View
+        style={[
+          styles.todoSummary,
+          isDark ? styles.todoSummaryDark : styles.todoSummaryLight,
+        ]}
+      >
+        <Text
+          style={[
+            styles.todoSummaryTitle,
+            isDark ? styles.titleDark : styles.titleLight,
+          ]}
+          numberOfLines={2}
+        >
+          {todo.title}
+        </Text>
+        <Text
+          style={[
+            styles.todoSummaryDescription,
+            isDark ? styles.messageDark : styles.messageLight,
+          ]}
+          numberOfLines={3}
+        >
+          {todo.description || "No description yet."}
+        </Text>
+      </View>
+
       {actionError ? (
         <Text
           style={[styles.error, isDark ? styles.errorDark : styles.errorLight]}
@@ -230,27 +267,41 @@ export default function TodoActionsScreen() {
               errorMessage={errorMessage ?? undefined}
               accessibilityLabel={`Edit title for ${todo.title}`}
             />
+            <Input
+              label="Edit description"
+              value={draftDescription}
+              onChangeText={setDraftDescription}
+              multiline
+              numberOfLines={4}
+              style={styles.descriptionInput}
+              accessibilityLabel={`Edit description for ${todo.title}`}
+            />
 
-            <Button
-              variant="primary"
-              onPress={() => {
-                void handleSave();
-              }}
-              loading={isSaving}
-              accessibilityLabel="Save changes"
-            >
-              Save
-            </Button>
-
-            <Button
-              variant="outline"
-              onPress={() => {
-                void handleCancelEditing();
-              }}
-              accessibilityLabel="Cancel editing"
-            >
-              Cancel
-            </Button>
+            <View style={styles.buttonRow}>
+              <View style={styles.flexOne}>
+                <Button
+                  variant="primary"
+                  onPress={() => {
+                    void handleSave();
+                  }}
+                  loading={isSaving}
+                  accessibilityLabel="Save changes"
+                >
+                  Save
+                </Button>
+              </View>
+              <View style={styles.flexOne}>
+                <Button
+                  variant="outline"
+                  onPress={() => {
+                    void handleCancelEditing();
+                  }}
+                  accessibilityLabel="Cancel editing"
+                >
+                  Cancel
+                </Button>
+              </View>
+            </View>
 
             <Button
               variant="danger"
@@ -264,45 +315,55 @@ export default function TodoActionsScreen() {
           </>
         ) : (
           <>
-            <Button
-              variant="primary"
-              onPress={() => {
-                void handleEdit();
-              }}
-              accessibilityLabel={`Edit ${todo.title}`}
-            >
-              Edit
-            </Button>
+            <View style={styles.buttonRow}>
+              <View style={styles.flexOne}>
+                <Button
+                  variant="primary"
+                  onPress={() => {
+                    void handleEdit();
+                  }}
+                  accessibilityLabel={`Edit ${todo.title}`}
+                >
+                  Edit
+                </Button>
+              </View>
+              <View style={styles.flexOne}>
+                <Button
+                  variant="secondary"
+                  onPress={() => {
+                    void handleDuplicate();
+                  }}
+                  accessibilityLabel={`Duplicate ${todo.title}`}
+                >
+                  Duplicate
+                </Button>
+              </View>
+            </View>
 
-            <Button
-              variant="secondary"
-              onPress={() => {
-                void handleDuplicate();
-              }}
-              accessibilityLabel={`Duplicate ${todo.title}`}
-            >
-              Duplicate
-            </Button>
-
-            <Button
-              variant="danger"
-              onPress={() => {
-                void handleDelete();
-              }}
-              accessibilityLabel={`Delete ${todo.title}`}
-            >
-              Delete
-            </Button>
-
-            <Button
-              variant="outline"
-              onPress={() => {
-                void handleClose();
-              }}
-              accessibilityLabel="Cancel todo actions"
-            >
-              Cancel
-            </Button>
+            <View style={styles.buttonRow}>
+              <View style={styles.flexOne}>
+                <Button
+                  variant="danger"
+                  onPress={() => {
+                    void handleDelete();
+                  }}
+                  accessibilityLabel={`Delete ${todo.title}`}
+                >
+                  Delete
+                </Button>
+              </View>
+              <View style={styles.flexOne}>
+                <Button
+                  variant="outline"
+                  onPress={() => {
+                    void handleClose();
+                  }}
+                  accessibilityLabel="Cancel todo actions"
+                >
+                  Cancel
+                </Button>
+              </View>
+            </View>
           </>
         )}
       </View>
@@ -355,7 +416,14 @@ const styles = StyleSheet.create({
     color: "#f5f5f5",
   },
   actions: {
+    gap: 10,
+  },
+  buttonRow: {
+    flexDirection: "row",
     gap: 8,
+  },
+  flexOne: {
+    flex: 1,
   },
   error: {
     fontSize: 14,
@@ -374,5 +442,31 @@ const styles = StyleSheet.create({
   },
   messageDark: {
     color: "#d4d4d4",
+  },
+  todoSummary: {
+    gap: 6,
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 12,
+  },
+  todoSummaryLight: {
+    borderColor: "#e5e5e5",
+    backgroundColor: "#ffffff",
+  },
+  todoSummaryDark: {
+    borderColor: "#404040",
+    backgroundColor: "#171717",
+  },
+  todoSummaryTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  todoSummaryDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  descriptionInput: {
+    minHeight: 100,
+    textAlignVertical: "top",
   },
 });

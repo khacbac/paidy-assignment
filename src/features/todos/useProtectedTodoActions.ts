@@ -61,7 +61,11 @@ export function useProtectedTodoActions() {
         "Authenticate to edit this todo",
         AuthLevel.TRUSTED,
         () => {
-          updateTodo({ id: todo.id, title: todo.title });
+          updateTodo({
+            id: todo.id,
+            title: todo.title,
+            description: todo.description,
+          });
         }
       );
     },

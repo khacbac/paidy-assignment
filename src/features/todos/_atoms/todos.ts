@@ -7,7 +7,15 @@ import type { Todo, TodoFilter, TodoId } from "../types";
 export type UpdateTodoPayload = {
   id: TodoId;
   title: string;
+  description?: string;
 };
+
+export type AddTodoPayload =
+  | string
+  | {
+      title: string;
+      description?: string;
+    };
 
 function createTodoId(): string {
   if (
@@ -30,8 +38,10 @@ export const completedTodosCountAtom = atom(
   (get) => get(todosAtom).filter((todo) => todo.completed).length
 );
 
-export const addTodoAtom = atom(null, (get, set, title: string) => {
-  const nextTitle = title.trim();
+export const addTodoAtom = atom(null, (get, set, payload: AddTodoPayload) => {
+  const nextTitle = (typeof payload === "string" ? payload : payload.title).trim();
+  const nextDescription =
+    typeof payload === "string" ? "" : (payload.description ?? "").trim();
   if (nextTitle.length === 0) {
     return;
   }
@@ -40,6 +50,7 @@ export const addTodoAtom = atom(null, (get, set, title: string) => {
   const todo: Todo = {
     id: createTodoId(),
     title: nextTitle,
+    description: nextDescription,
     createdAtMs: nowMs,
     updatedAtMs: nowMs,
     completed: false,
@@ -64,6 +75,7 @@ export const updateTodoAtom = atom(
   null,
   (get, set, payload: UpdateTodoPayload) => {
     const nextTitle = payload.title.trim();
+    const nextDescription = (payload.description ?? "").trim();
     if (nextTitle.length === 0) {
       return;
     }
@@ -73,7 +85,12 @@ export const updateTodoAtom = atom(
       todosAtom,
       get(todosAtom).map((todo) =>
         todo.id === payload.id
-          ? { ...todo, title: nextTitle, updatedAtMs: nowMs }
+          ? {
+              ...todo,
+              title: nextTitle,
+              description: nextDescription,
+              updatedAtMs: nowMs,
+            }
           : todo
       )
     );

@@ -19,6 +19,22 @@ function isTodo(value: unknown): value is Todo {
   );
 }
 
+function normalizeTodo(value: unknown): Todo | null {
+  if (!isTodo(value)) {
+    return null;
+  }
+
+  const todo = value as Todo;
+  return {
+    id: todo.id,
+    title: todo.title,
+    description: typeof todo.description === "string" ? todo.description : "",
+    createdAtMs: todo.createdAtMs,
+    updatedAtMs: todo.updatedAtMs,
+    completed: todo.completed,
+  };
+}
+
 function parseTodos(raw: string | null): Todo[] | null {
   if (raw === null) {
     return null;
@@ -29,7 +45,9 @@ function parseTodos(raw: string | null): Todo[] | null {
     if (!Array.isArray(parsed)) {
       return [];
     }
-    return parsed.filter(isTodo);
+    return parsed
+      .map((todo) => normalizeTodo(todo))
+      .filter((todo): todo is Todo => todo !== null);
   } catch {
     return [];
   }

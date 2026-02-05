@@ -32,6 +32,7 @@ export function createMockTodo(overrides?: Partial<Todo>): Todo {
   return {
     id: "todo-1",
     title: "Sample todo",
+    description: "",
     createdAtMs: now,
     updatedAtMs: now,
     completed: false,

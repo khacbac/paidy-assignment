@@ -48,6 +48,7 @@ describe("todos atoms", () => {
       {
         id: "todo-1",
         title: "Toggle me",
+        description: "",
         createdAtMs: 1,
         updatedAtMs: 1,
         completed: false,
@@ -67,6 +68,7 @@ describe("todos atoms", () => {
       {
         id: "todo-1",
         title: "Keep",
+        description: "",
         createdAtMs: 1,
         updatedAtMs: 1,
         completed: false,
@@ -74,6 +76,7 @@ describe("todos atoms", () => {
       {
         id: "todo-2",
         title: "Delete",
+        description: "",
         createdAtMs: 1,
         updatedAtMs: 1,
         completed: false,
@@ -86,6 +89,7 @@ describe("todos atoms", () => {
       {
         id: "todo-1",
         title: "Keep",
+        description: "",
         createdAtMs: 1,
         updatedAtMs: 1,
         completed: false,
@@ -99,6 +103,7 @@ describe("todos atoms", () => {
       {
         id: "todo-1",
         title: "Original",
+        description: "",
         createdAtMs: 1,
         updatedAtMs: 1,
         completed: true,

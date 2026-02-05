@@ -82,15 +82,41 @@ export function TodoItemDisplay({
           >
             {todo.title}
           </Text>
-          <View style={styles.timestampWrapper}>
+          {todo.description ? (
             <Text
               style={[
-                styles.timestamp,
-                isDark ? styles.timestampDark : styles.timestampLight,
+                styles.description,
+                isDark ? styles.descriptionDark : styles.descriptionLight,
+              ]}
+              numberOfLines={2}
+            >
+              {todo.description}
+            </Text>
+          ) : null}
+          <View style={styles.metaRow}>
+            <View
+              style={[
+                styles.statusBadge,
+                todo.completed
+                  ? styles.statusBadgeCompleted
+                  : isDark
+                  ? styles.statusBadgeDark
+                  : styles.statusBadgeLight,
               ]}
             >
-              Created {formatTimestamp(todo.createdAtMs)}
-            </Text>
+              <Text
+                style={[
+                  styles.statusLabel,
+                  todo.completed
+                    ? styles.statusLabelCompleted
+                    : isDark
+                    ? styles.statusLabelDark
+                    : styles.statusLabelLight,
+                ]}
+              >
+                {todo.completed ? "Completed" : "Active"}
+              </Text>
+            </View>
             <Text
               style={[
                 styles.timestamp,
@@ -100,6 +126,14 @@ export function TodoItemDisplay({
               Updated {formatTimestamp(todo.updatedAtMs)}
             </Text>
           </View>
+          <Text
+            style={[
+              styles.timestamp,
+              isDark ? styles.timestampDark : styles.timestampLight,
+            ]}
+          >
+            Created {formatTimestamp(todo.createdAtMs)}
+          </Text>
         </View>
       </View>
     </Pressable>
@@ -122,7 +156,7 @@ const styles = StyleSheet.create({
   },
   contentRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 12,
     padding: 16,
   },
@@ -175,8 +209,53 @@ const styles = StyleSheet.create({
     color: "#a3a3a3",
     textDecorationLine: "line-through",
   },
-  timestampWrapper: {
-    gap: 2,
+  description: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  descriptionLight: {
+    color: "#404040",
+  },
+  descriptionDark: {
+    color: "#d4d4d4",
+  },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  statusBadge: {
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  statusBadgeLight: {
+    borderColor: "#d4d4d4",
+    backgroundColor: "#fafafa",
+  },
+  statusBadgeDark: {
+    borderColor: "#525252",
+    backgroundColor: "#262626",
+  },
+  statusBadgeCompleted: {
+    borderColor: "#16a34a",
+    backgroundColor: "#dcfce7",
+  },
+  statusLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    textTransform: "uppercase",
+  },
+  statusLabelLight: {
+    color: "#404040",
+  },
+  statusLabelDark: {
+    color: "#d4d4d4",
+  },
+  statusLabelCompleted: {
+    color: "#166534",
   },
   timestamp: {
     fontSize: 12,

@@ -4,8 +4,10 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 
 type AddTodoFormProps = {
-  value: string;
-  onChangeText: (value: string) => void;
+  titleValue: string;
+  descriptionValue: string;
+  onChangeTitleText: (value: string) => void;
+  onChangeDescriptionText: (value: string) => void;
   onSubmit: () => void;
   onClear: () => void;
   isSubmitting?: boolean;
@@ -13,8 +15,10 @@ type AddTodoFormProps = {
 };
 
 export function AddTodoForm({
-  value,
-  onChangeText,
+  titleValue,
+  descriptionValue,
+  onChangeTitleText,
+  onChangeDescriptionText,
   onSubmit,
   onClear,
   isSubmitting = false,
@@ -24,13 +28,23 @@ export function AddTodoForm({
     <View style={styles.container}>
       <Input
         label="New todo"
-        value={value}
-        onChangeText={onChangeText}
+        value={titleValue}
+        onChangeText={onChangeTitleText}
         placeholder="Write something you need to do"
         returnKeyType="done"
         onSubmitEditing={onSubmit}
         errorMessage={errorMessage ?? undefined}
         accessibilityLabel="Todo title input"
+      />
+      <Input
+        label="Description (optional)"
+        value={descriptionValue}
+        onChangeText={onChangeDescriptionText}
+        placeholder="Add extra details"
+        multiline
+        numberOfLines={3}
+        style={styles.descriptionInput}
+        accessibilityLabel="Todo description input"
       />
       <View style={styles.actionsRow}>
         <View style={styles.flexOne}>
@@ -47,7 +61,11 @@ export function AddTodoForm({
           <Button
             variant="outline"
             onPress={onClear}
-            disabled={isSubmitting || value.trim().length === 0}
+            disabled={
+              isSubmitting ||
+              (titleValue.trim().length === 0 &&
+                descriptionValue.trim().length === 0)
+            }
             accessibilityLabel="Clear todo input"
           >
             Clear
@@ -68,5 +86,9 @@ const styles = StyleSheet.create({
   },
   flexOne: {
     flex: 1,
+  },
+  descriptionInput: {
+    minHeight: 88,
+    textAlignVertical: "top",
   },
 });

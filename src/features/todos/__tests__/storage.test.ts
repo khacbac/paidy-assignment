@@ -29,6 +29,7 @@ describe("todoStorage", () => {
       {
         id: "todo-1",
         title: "Read",
+        description: "",
         createdAtMs: 1,
         updatedAtMs: 1,
         completed: false,
@@ -45,6 +46,7 @@ describe("todoStorage", () => {
       {
         id: "todo-1",
         title: "Write tests",
+        description: "",
         createdAtMs: 1,
         updatedAtMs: 1,
         completed: true,
@@ -57,7 +59,7 @@ describe("todoStorage", () => {
   });
 
   it("migrates legacy key when needed", async () => {
-    const legacyTodos: Todo[] = [
+    const legacyTodos = [
       {
         id: "legacy",
         title: "Legacy todo",
@@ -71,8 +73,21 @@ describe("todoStorage", () => {
       .mockResolvedValueOnce(null)
       .mockResolvedValueOnce(JSON.stringify(legacyTodos));
 
-    await expect(loadTodos()).resolves.toEqual(legacyTodos);
-    expect(mockedSetItem).toHaveBeenCalledWith(TODOS_KEY, JSON.stringify(legacyTodos));
+    await expect(loadTodos()).resolves.toEqual([
+      {
+        ...legacyTodos[0],
+        description: "",
+      },
+    ]);
+    expect(mockedSetItem).toHaveBeenCalledWith(
+      TODOS_KEY,
+      JSON.stringify([
+        {
+          ...legacyTodos[0],
+          description: "",
+        },
+      ])
+    );
     expect(mockedRemoveItem).toHaveBeenCalledWith("todos");
   });
 });

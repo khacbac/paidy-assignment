@@ -54,6 +54,7 @@ function getEmptyState(filter: TodoFilter): {
 export default function TodosScreen() {
   const [filter, setFilter] = useState<TodoFilter>("all");
   const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isDark = useColorScheme() === "dark";
@@ -96,11 +97,12 @@ export default function TodosScreen() {
         "Authenticate to add a todo",
         AuthLevel.SENSITIVE,
         () => {
-          addTodo(nextTitle);
+          addTodo({ title: nextTitle, description: newDescription });
         },
       );
       if (result !== null) {
         setNewTitle("");
+        setNewDescription("");
       }
     } finally {
       setIsSubmitting(false);
@@ -136,18 +138,21 @@ export default function TodosScreen() {
         </View>
 
         <AddTodoForm
-          value={newTitle}
-          onChangeText={(value) => {
+          titleValue={newTitle}
+          descriptionValue={newDescription}
+          onChangeTitleText={(value) => {
             setNewTitle(value);
             if (formError) {
               setFormError(null);
             }
           }}
+          onChangeDescriptionText={setNewDescription}
           onSubmit={() => {
             void handleAddTodo();
           }}
           onClear={() => {
             setNewTitle("");
+            setNewDescription("");
             setFormError(null);
           }}
           isSubmitting={isSubmitting}
